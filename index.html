@@ -1,0 +1,3332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONSTORCLIK | Продвинутый кликер</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7C3AED;
+            --secondary: #10B981;
+            --dark: #0F172A;
+            --darker: #0A0F1C;
+            --light: #F8FAFC;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --skin-rare: #06D6A0;
+            --skin-epic: #9D4EDD;
+            --skin-legendary: #FF6B35;
+            --skin-mythic: #FF006E;
+            --energy: #3B82F6;
+            --purple-dark: #5B21B6;
+            --purple-light: #8B5CF6;
+            --gold: #FBBF24;
+            --platinum: #E5E7EB;
+            --diamond: #60A5FA;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-lg: 30px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'SF Pro Display', system-ui, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0A0F1C 0%, #1E293B 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        /* СНЕЖИНКИ */
+        #snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            top: -50px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.5rem;
+            opacity: 0.7;
+            animation: snowFall linear infinite;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        @keyframes snowFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* АВТОРИЗАЦИЯ */
+        #authScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: rgba(10, 15, 28, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+        }
+        
+        .auth-container {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.95) 0%, 
+                rgba(15, 23, 42, 0.98) 100%);
+            border-radius: var(--radius-lg);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid var(--primary);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(124, 58, 237, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .auth-title h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--accent) 50%, 
+                var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+            position: relative;
+        }
+        
+        .auth-title h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 25%;
+            right: 25%;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--primary), 
+                transparent);
+        }
+        
+        .auth-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .difficulty-selector {
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .difficulty-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .difficulty-option {
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: var(--radius-sm);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .difficulty-option:hover {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: rgba(124, 58, 237, 0.4);
+        }
+        
+        .difficulty-option.selected {
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+        
+        .difficulty-option.hard {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .difficulty-option.hard.selected {
+            background: linear-gradient(135deg, 
+                var(--danger) 0%, 
+                #DC2626 100%);
+            border-color: var(--danger);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+        
+        .difficulty-option.extreme {
+            border-color: rgba(255, 107, 53, 0.3);
+            background: rgba(255, 107, 53, 0.1);
+        }
+        
+        .difficulty-option.extreme.selected {
+            background: linear-gradient(135deg, 
+                var(--skin-legendary) 0%, 
+                #FF4D00 100%);
+            border-color: var(--skin-legendary);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+        
+        .auth-btn {
+            padding: 18px 50px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 30px;
+            box-shadow: 
+                0 8px 25px rgba(124, 58, 237, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: 0.5s;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 30px rgba(124, 58, 237, 0.6),
+                0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .auth-btn:hover::before {
+            left: 100%;
+        }
+        
+        .player-id {
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.15) 0%, 
+                rgba(139, 92, 246, 0.08) 100%);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            margin-top: 25px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .player-id-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .player-id-value {
+            color: var(--gold);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        /* ОСНОВНОЙ ИНТЕРФЕЙС */
+        #gameContainer {
+            display: none;
+            min-height: 100vh;
+            padding-top: 140px;
+        }
+        
+        /* ХЕДЕР */
+        .compact-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.98) 0%, 
+                rgba(10, 15, 28, 0.98) 100%);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+            height: 70px;
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 
+                0 4px 15px rgba(124, 58, 237, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo-text {
+            font-weight: 900;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+        
+        /* РЕСУРСЫ */
+        .resources-container {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        .gold-display {
+            background: linear-gradient(135deg, 
+                rgba(251, 191, 36, 0.2) 0%, 
+                rgba(245, 158, 11, 0.1) 100%);
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            min-width: 180px;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .gold-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, 
+                var(--gold) 0%, 
+                #F59E0B 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            box-shadow: 
+                0 3px 10px rgba(251, 191, 36, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .gold-info {
+            flex: 1;
+        }
+        
+        .gold-amount {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gold-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .energy-display {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 180px;
+        }
+        
+        .energy-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .energy-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .energy-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--energy);
+            font-family: monospace;
+        }
+        
+        .energy-bar {
+            height: 10px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            position: relative;
+        }
+        
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                var(--energy) 0%, 
+                #60A5FA 100%);
+            border-radius: 5px;
+            transition: width 0.3s ease-out;
+            position: relative;
+        }
+        
+        .energy-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.15) 50%, 
+                transparent 100%);
+            animation: energyShimmer 2s infinite linear;
+        }
+        
+        /* НАВИГАЦИЯ */
+        .navigation {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.95) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            padding: 15px 25px;
+            display: flex;
+            gap: 10px;
+            z-index: 999;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .navigation::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .nav-button {
+            padding: 12px 22px;
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.08) 0%, 
+                rgba(91, 33, 182, 0.04) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: var(--radius-sm);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-button:hover {
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.15) 0%, 
+                rgba(91, 33, 182, 0.08) 100%);
+            border-color: rgba(124, 58, 237, 0.3);
+            transform: translateY(-2px);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .nav-button.active {
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 
+                0 4px 15px rgba(124, 58, 237, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .main-content {
+            padding: 25px;
+            padding-bottom: 100px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* КЛИКЕР */
+        .clicker-section {
+            margin-bottom: 30px;
+        }
+        
+        .monster-container {
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.9) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid rgba(124, 58, 237, 0.3);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .monster-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                var(--primary), 
+                var(--accent), 
+                var(--gold), 
+                var(--primary));
+            background-size: 200% 100%;
+            animation: gradientShift 3s linear infinite;
+        }
+        
+        .monster-display {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 30px;
+            position: relative;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        .monster {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border-radius: 50%;
+            position: relative;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 20px 40px rgba(124, 58, 237, 0.4),
+                inset 0 4px 12px rgba(255, 255, 255, 0.1);
+            border: 12px solid rgba(15, 23, 42, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            color: white;
+            overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .monster::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.08) 50%, 
+                transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        .monster:active, .monster.touch-active {
+            transform: scale(0.95);
+            box-shadow: 
+                0 10px 25px rgba(124, 58, 237, 0.6),
+                inset 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+        
+        .skin-aura {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, transparent 30%, var(--aura-color) 100%);
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+            z-index: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.15) 0%, 
+                rgba(91, 33, 182, 0.1) 100%);
+            border-radius: var(--radius-sm);
+            padding: 25px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(124, 58, 237, 0.4);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* АКТИВНЫЕ БАФФЫ */
+        .active-buffs-container {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.1) 0%, 
+                rgba(30, 64, 175, 0.05) 100%);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .active-buffs-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--energy);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .active-buffs-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .buff-tag {
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.2) 0%, 
+                rgba(30, 64, 175, 0.1) 100%);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* БИЗНЕСЫ */
+        .businesses-section {
+            margin-top: 40px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                rgba(124, 58, 237, 0.5), 
+                transparent);
+        }
+        
+        .businesses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+        }
+        
+        .business-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.9) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .business-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                var(--primary), 
+                var(--accent));
+        }
+        
+        .business-card:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+            transform: translateY(-8px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(124, 58, 237, 0.1);
+        }
+        
+        .business-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .business-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            box-shadow: 
+                0 5px 15px rgba(124, 58, 237, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .business-count {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .business-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .business-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .business-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 18px;
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.1) 0%, 
+                rgba(91, 33, 182, 0.05) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(124, 58, 237, 0.15);
+        }
+        
+        .business-stat {
+            text-align: center;
+        }
+        
+        .business-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+        }
+        
+        .business-stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .business-income {
+            color: var(--success);
+        }
+        
+        .business-cost {
+            color: var(--gold);
+        }
+        
+        /* КНОПКИ */
+        .action-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: 0.5s;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 25px rgba(124, 58, 237, 0.5),
+                0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-button:hover::before {
+            left: 100%;
+        }
+        
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .action-button:disabled:hover::before {
+            left: -100%;
+        }
+        
+        /* БУСТЫ */
+        .boosts-section {
+            margin-top: 40px;
+        }
+        
+        .boosts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .boost-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.9) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .boost-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                var(--energy), 
+                #1D4ED8);
+        }
+        
+        .boost-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .boost-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, 
+                var(--energy) 0%, 
+                #1D4ED8 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 20px;
+            color: white;
+            box-shadow: 
+                0 5px 15px rgba(59, 130, 246, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .boost-name {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .boost-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        /* СКИНЫ */
+        .skins-section {
+            margin-top: 40px;
+        }
+        
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+        }
+        
+        .skin-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.9) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        .skin-card.common {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.05) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .skin-card.rare {
+            border-color: var(--skin-rare);
+            background: linear-gradient(135deg, 
+                rgba(6, 214, 160, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .skin-card.epic {
+            border-color: var(--skin-epic);
+            background: linear-gradient(135deg, 
+                rgba(157, 78, 221, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .skin-card.legendary {
+            border-color: var(--skin-legendary);
+            background: linear-gradient(135deg, 
+                rgba(255, 107, 53, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .skin-card.mythic {
+            border-color: var(--skin-mythic);
+            background: linear-gradient(135deg, 
+                rgba(255, 0, 110, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            animation: mythicGlow 2s infinite alternate;
+        }
+        
+        @keyframes mythicGlow {
+            0% { box-shadow: 0 0 10px var(--skin-mythic); }
+            100% { box-shadow: 0 0 30px var(--skin-mythic); }
+        }
+        
+        .skin-card.owned {
+            border-width: 3px;
+            box-shadow: 0 0 20px currentColor;
+        }
+        
+        .skin-card.equipped {
+            border-width: 3px;
+            box-shadow: 
+                0 0 30px currentColor,
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .skin-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .skin-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .skin-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .skin-rarity {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .skin-card.common .skin-rarity {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .skin-card.rare .skin-rarity {
+            background: var(--skin-rare);
+            color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .skin-card.epic .skin-rarity {
+            background: var(--skin-epic);
+            color: white;
+        }
+        
+        .skin-card.legendary .skin-rarity {
+            background: var(--skin-legendary);
+            color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .skin-card.mythic .skin-rarity {
+            background: var(--skin-mythic);
+            color: white;
+        }
+        
+        /* ПРОМОКОДЫ */
+        .promo-section {
+            margin-top: 40px;
+        }
+        
+        .promo-container {
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.15) 0%, 
+                rgba(91, 33, 182, 0.1) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+        
+        .promo-input-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .promo-input {
+            flex: 1;
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: var(--radius-sm);
+            color: white;
+            font-size: 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s;
+        }
+        
+        .promo-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+        
+        /* ФУТЕР */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.95) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            padding: 20px 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-info {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .footer-info strong {
+            color: var(--accent);
+        }
+        
+        .footer-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .footer-button {
+            padding: 10px 20px;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: var(--radius-sm);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-button:hover {
+            background: rgba(124, 58, 237, 0.2);
+            color: white;
+            border-color: rgba(124, 58, 237, 0.5);
+        }
+        
+        /* НОТИФИКАЦИИ */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            z-index: 9999;
+        }
+        
+        .notification {
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.95) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left-color: var(--success);
+        }
+        
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+        
+        .notification.info {
+            border-left-color: var(--energy);
+        }
+        
+        .notification-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .notification-message {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+        
+        /* ДОСТИЖЕНИЯ */
+        .achievements-section {
+            margin-top: 40px;
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .achievement-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.9) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+        
+        .achievement-card.locked {
+            border-color: rgba(255, 255, 255, 0.1);
+            opacity: 0.6;
+        }
+        
+        .achievement-card.unlocked {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, 
+                rgba(251, 191, 36, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .achievement-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .achievement-card.unlocked .achievement-icon {
+            background: linear-gradient(135deg, 
+                var(--gold) 0%, 
+                #F59E0B 100%);
+        }
+        
+        .achievement-info {
+            flex: 1;
+        }
+        
+        .achievement-name {
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .achievement-reward {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        /* АНИМАЦИИ */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes energyShimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px) scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes clickEffect {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+                border-width: 3px;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+                border-width: 1px;
+            }
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(0) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-30px) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-60px) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
+        @media (max-width: 768px) {
+            .compact-header {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .logo-container {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .resources-container {
+                width: 100%;
+                justify-content: center;
+                gap: 10px;
+            }
+            
+            .gold-display,
+            .energy-display {
+                min-width: 120px;
+                padding: 8px 12px;
+            }
+            
+            .gold-icon, .energy-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+            
+            .gold-amount {
+                font-size: 1.2rem;
+            }
+            
+            .navigation {
+                top: 110px;
+                padding: 10px;
+                gap: 5px;
+            }
+            
+            .nav-button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                gap: 5px;
+            }
+            
+            #gameContainer {
+                padding-top: 150px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .monster-display {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .monster {
+                font-size: 4rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .businesses-grid,
+            .boosts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .business-card {
+                padding: 15px;
+            }
+            
+            .skins-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .skin-card {
+                padding: 15px;
+            }
+            
+            .skin-preview {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                padding: 10px;
+            }
+            
+            .notification-container {
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+            }
+            
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ЭФФЕКТЫ КЛИКА */
+        .click-effect {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 3px solid var(--energy);
+            border-radius: 50%;
+            animation: clickEffect 0.5s forwards;
+            pointer-events: none;
+            z-index: 99;
+        }
+        
+        .money-popup {
+            position: absolute;
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 1.4rem;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUp 1s forwards;
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        
+        .critical-popup {
+            position: absolute;
+            color: var(--danger);
+            font-weight: 900;
+            font-size: 1.8rem;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUp 1s forwards;
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 0 15px rgba(239, 68, 68, 0.7);
+        }
+        
+        .particle-effect {
+            position: absolute;
+            font-weight: 900;
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 98;
+            animation: particleFloat 0.8s forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- СНЕЖИНКИ -->
+    <div id="snowflakes"></div>
+    
+    <!-- АВТОРИЗАЦИЯ -->
+    <div id="authScreen">
+        <div class="auth-container">
+            <div class="auth-title">
+                <h1><i class="fas fa-dragon"></i> MONSTORCLIK</h1>
+            </div>
+            
+            <div class="auth-subtitle">
+                Продвинутый кликер с уникальным движком<br>
+                Система анти-чита, бусты, скины и многое другое
+            </div>
+            
+            <div class="difficulty-selector">
+                <div class="difficulty-label">Выберите сложность:</div>
+                <div class="difficulty-options">
+                    <div class="difficulty-option selected" data-difficulty="normal">Нормальная</div>
+                    <div class="difficulty-option hard" data-difficulty="hard">Сложная</div>
+                    <div class="difficulty-option extreme" data-difficulty="extreme">Экстрим</div>
+                </div>
+            </div>
+            
+            <button class="auth-btn" id="startBtn">
+                <i class="fas fa-play-circle"></i> НАЧАТЬ ИГРУ
+            </button>
+            
+            <div class="player-id">
+                <div class="player-id-label">Ваш уникальный ID:</div>
+                <div class="player-id-value" id="playerId">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
+    <div id="gameContainer">
+        <!-- ХЕДЕР -->
+        <header class="compact-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-dragon"></i>
+                </div>
+                <div class="logo-text">MONSTORCLIK</div>
+            </div>
+            
+            <div class="resources-container">
+                <div class="gold-display">
+                    <div class="gold-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="gold-info">
+                        <div class="gold-amount" id="goldAmount">0</div>
+                        <div class="gold-label">Gold</div>
+                    </div>
+                </div>
+                
+                <div class="energy-display">
+                    <div class="energy-info">
+                        <div class="energy-label">
+                            <i class="fas fa-bolt"></i> Энергия:
+                        </div>
+                        <div class="energy-value" id="energyValue">100/100</div>
+                    </div>
+                    <div class="energy-bar">
+                        <div class="energy-fill" id="energyFill"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- НАВИГАЦИЯ -->
+        <nav class="navigation">
+            <button class="nav-button active" data-tab="clicker">
+                <i class="fas fa-fist-raised"></i> Кликер
+            </button>
+            <button class="nav-button" data-tab="businesses">
+                <i class="fas fa-building"></i> Бизнесы
+            </button>
+            <button class="nav-button" data-tab="boosts">
+                <i class="fas fa-rocket"></i> Бусты
+            </button>
+            <button class="nav-button" data-tab="skins">
+                <i class="fas fa-palette"></i> Скины
+            </button>
+            <button class="nav-button" data-tab="achievements">
+                <i class="fas fa-trophy"></i> Достижения
+            </button>
+            <button class="nav-button" data-tab="promo">
+                <i class="fas fa-ticket-alt"></i> Промокоды
+            </button>
+        </nav>
+        
+        <!-- ОСНОВНОЙ КОНТЕНТ -->
+        <main class="main-content" id="mainContent">
+            <!-- Контент будет загружаться динамически -->
+        </main>
+        
+        <!-- ФУТЕР -->
+        <footer class="footer">
+            <div class="footer-info">
+                <strong>MONSTORCLIK</strong> © 2024 | Уровень: <span id="currentLevel">1</span> | Gold: <span id="footerGold">0</span> | CPS: <span id="cpsCounter">0</span>
+            </div>
+            
+            <div class="footer-actions">
+                <button class="footer-button" id="saveGameBtn">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+                <button class="footer-button" id="resetGameBtn">
+                    <i class="fas fa-redo"></i> Сбросить
+                </button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- УВЕДОМЛЕНИЯ -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script>
+        // ============ ДВИЖОК ИГРЫ ============
+        class MonstorClickEngine {
+            constructor() {
+                // Настройки сложности
+                this.difficulty = 'normal';
+                this.difficultySettings = {
+                    normal: { multiplier: 1, costMultiplier: 1, incomeMultiplier: 1 },
+                    hard: { multiplier: 0.7, costMultiplier: 1.5, incomeMultiplier: 0.7 },
+                    extreme: { multiplier: 0.4, costMultiplier: 2, incomeMultiplier: 0.4 }
+                };
+                
+                // Анти-чит система
+                this.clickHistory = [];
+                this.lastClickTime = 0;
+                this.maxCPS = 15;
+                this.isBlocked = false;
+                this.blockTimer = 0;
+                this.lastClickPositions = [];
+                this.maxSamePositionClicks = 8;
+                this.cps = 0;
+                this.clickTimes = [];
+                
+                // Игровые данные
+                this.gameData = {
+                    playerId: this.generatePlayerId(),
+                    nickname: 'Игрок_' + Math.floor(Math.random() * 1000),
+                    gold: 0,
+                    totalGold: 0,
+                    totalClicks: 0,
+                    clickPower: 1,
+                    level: 1,
+                    experience: 0,
+                    maxExperience: 1000,
+                    energy: 100,
+                    maxEnergy: 100,
+                    energyRegen: 0.5,
+                    energyCost: 0.5,
+                    businesses: {},
+                    skins: ['default'],
+                    equippedSkin: 'default',
+                    lootboxes: 0,
+                    promoUsed: [],
+                    achievements: [],
+                    stats: {
+                        sessionStart: Date.now(),
+                        totalTime: 0,
+                        maxClickStreak: 0,
+                        currentStreak: 0,
+                        criticalHits: 0,
+                        totalBusinesses: 0,
+                        skinsUnlocked: 1
+                    },
+                    activeBoosts: [],
+                    // НОВОЕ: Сезонные события
+                    seasonalEvent: {
+                        active: true,
+                        name: "Зимняя сказка",
+                        multiplier: 1.5,
+                        endTime: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 дней
+                    }
+                };
+                
+                // Достижения
+                this.achievementsData = {
+                    'first_click': {
+                        id: 'first_click',
+                        name: 'Первый шаг',
+                        description: 'Сделать первый клик',
+                        reward: 100,
+                        condition: (game) => game.totalClicks >= 1,
+                        icon: 'fa-mouse-pointer'
+                    },
+                    'gold_collector': {
+                        id: 'gold_collector',
+                        name: 'Коллекционер золота',
+                        description: 'Заработать 10,000 Gold',
+                        reward: 1000,
+                        condition: (game) => game.totalGold >= 10000,
+                        icon: 'fa-coins'
+                    },
+                    'click_master': {
+                        id: 'click_master',
+                        name: 'Мастер кликов',
+                        description: 'Сделать 1000 кликов',
+                        reward: 5000,
+                        condition: (game) => game.totalClicks >= 1000,
+                        icon: 'fa-fist-raised'
+                    },
+                    'business_tycoon': {
+                        id: 'business_tycoon',
+                        name: 'Бизнес-магнат',
+                        description: 'Купить 50 бизнесов',
+                        reward: 10000,
+                        condition: (game) => game.stats.totalBusinesses >= 50,
+                        icon: 'fa-building'
+                    },
+                    'skin_collector': {
+                        id: 'skin_collector',
+                        name: 'Коллекционер скинов',
+                        description: 'Разблокировать 5 скинов',
+                        reward: 5000,
+                        condition: (game) => game.stats.skinsUnlocked >= 5,
+                        icon: 'fa-palette'
+                    },
+                    'critical_expert': {
+                        id: 'critical_expert',
+                        name: 'Эксперт по критам',
+                        description: 'Сделать 100 критических ударов',
+                        reward: 7500,
+                        condition: (game) => game.stats.criticalHits >= 100,
+                        icon: 'fa-bolt'
+                    },
+                    'level_20': {
+                        id: 'level_20',
+                        name: 'Ветеран',
+                        description: 'Достигнуть 20 уровня',
+                        reward: 20000,
+                        condition: (game) => game.level >= 20,
+                        icon: 'fa-trophy'
+                    },
+                    'rich_man': {
+                        id: 'rich_man',
+                        name: 'Миллионер',
+                        description: 'Накопить 1,000,000 Gold',
+                        reward: 50000,
+                        condition: (game) => game.totalGold >= 1000000,
+                        icon: 'fa-crown'
+                    }
+                };
+                
+                // Скрытые промокоды
+                this.promoCodes = {
+                    'WELCOME1000': {
+                        code: 'WELCOME1000',
+                        reward: { type: 'gold', amount: 1000 },
+                        description: '1000 Gold',
+                        hidden: false
+                    },
+                    'DOUBLEPOWER': {
+                        code: 'DOUBLEPOWER',
+                        reward: { type: 'boost', id: 'double_click', duration: 120 },
+                        description: 'x2 сила клика на 2 минуты',
+                        hidden: true
+                    },
+                    'LEGENDARYBOX': {
+                        code: 'LEGENDARYBOX',
+                        reward: { type: 'gold', amount: 5000 },
+                        description: '5000 Gold',
+                        hidden: true
+                    },
+                    'WINTERMAGIC': {
+                        code: 'WINTERMAGIC',
+                        reward: { type: 'gold', amount: 2500 },
+                        description: '2500 Gold',
+                        hidden: true
+                    },
+                    'SNOWFLAKE': {
+                        code: 'SNOWFLAKE',
+                        reward: { type: 'boost', id: 'energy_boost' },
+                        description: 'Бесплатный энергетик',
+                        hidden: true
+                    }
+                };
+                
+                // Инициализация
+                this.init();
+            }
+            
+            generatePlayerId() {
+                const timestamp = Date.now().toString(36);
+                const random = Math.random().toString(36).substring(2, 8);
+                return `MC_${timestamp}_${random}`.toUpperCase();
+            }
+            
+            init() {
+                this.setupGameData();
+                this.setupEventListeners();
+                this.startGameLoop();
+                this.loadGame();
+                this.createSnowflakes();
+                
+                // Установка сложности
+                document.querySelectorAll('.difficulty-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        document.querySelectorAll('.difficulty-option').forEach(opt => 
+                            opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                        this.difficulty = option.dataset.difficulty;
+                    });
+                });
+            }
+            
+            setupGameData() {
+                // Бизнесы
+                this.gameData.businesses = {
+                    'gold_mine': {
+                        id: 'gold_mine',
+                        name: 'Золотой рудник',
+                        description: 'Медленная добыча золота',
+                        level: 0,
+                        baseIncome: 0.5,
+                        income: 0.5,
+                        baseCost: 1000,
+                        cost: 1000,
+                        multiplier: 1,
+                        icon: 'fas fa-mountain',
+                        totalIncome: 0,
+                        unlocked: true
+                    },
+                    'farm': {
+                        id: 'farm',
+                        name: 'Ферма',
+                        description: 'Производство золота',
+                        level: 0,
+                        baseIncome: 2,
+                        income: 2,
+                        baseCost: 5000,
+                        cost: 5000,
+                        multiplier: 1,
+                        icon: 'fas fa-tractor',
+                        totalIncome: 0,
+                        unlocked: false
+                    },
+                    'factory': {
+                        id: 'factory',
+                        name: 'Завод',
+                        description: 'Быстрое производство',
+                        level: 0,
+                        baseIncome: 10,
+                        income: 10,
+                        baseCost: 25000,
+                        cost: 25000,
+                        multiplier: 1,
+                        icon: 'fas fa-industry',
+                        totalIncome: 0,
+                        unlocked: false
+                    },
+                    'laboratory': {
+                        id: 'laboratory',
+                        name: 'Лаборатория',
+                        description: 'Исследовательский центр',
+                        level: 0,
+                        baseIncome: 50,
+                        income: 50,
+                        baseCost: 100000,
+                        cost: 100000,
+                        multiplier: 1,
+                        icon: 'fas fa-flask',
+                        totalIncome: 0,
+                        unlocked: false
+                    },
+                    'spaceport': {
+                        id: 'spaceport',
+                        name: 'Космопорт',
+                        description: 'Межгалактическая добыча',
+                        level: 0,
+                        baseIncome: 250,
+                        income: 250,
+                        baseCost: 1000000,
+                        cost: 1000000,
+                        multiplier: 1,
+                        icon: 'fas fa-rocket',
+                        totalIncome: 0,
+                        unlocked: false
+                    }
+                };
+                
+                // Скины
+                this.gameData.skinsData = {
+                    'default': {
+                        id: 'default',
+                        name: 'Стандартный',
+                        rarity: 'common',
+                        multiplier: 1,
+                        price: 0,
+                        icon: 'fas fa-dragon',
+                        color: '#7C3AED',
+                        aura: null
+                    },
+                    'warrior': {
+                        id: 'warrior',
+                        name: 'Воин',
+                        rarity: 'rare',
+                        multiplier: 1.2,
+                        price: 5000,
+                        icon: 'fas fa-helmet-battle',
+                        color: '#DC2626',
+                        aura: '#DC2626'
+                    },
+                    'mage': {
+                        id: 'mage',
+                        name: 'Маг',
+                        rarity: 'rare',
+                        multiplier: 1.3,
+                        price: 15000,
+                        icon: 'fas fa-hat-wizard',
+                        color: '#8B5CF6',
+                        aura: '#8B5CF6'
+                    },
+                    'king': {
+                        id: 'king',
+                        name: 'Король',
+                        rarity: 'epic',
+                        multiplier: 1.6,
+                        price: 50000,
+                        icon: 'fas fa-crown',
+                        color: '#FBBF24',
+                        aura: '#FBBF24'
+                    },
+                    'dragon': {
+                        id: 'dragon',
+                        name: 'Дракон',
+                        rarity: 'legendary',
+                        multiplier: 2.0,
+                        price: 250000,
+                        icon: 'fas fa-dragon',
+                        color: '#FF6B35',
+                        aura: '#FF6B35'
+                    },
+                    'cyber': {
+                        id: 'cyber',
+                        name: 'Кибер',
+                        rarity: 'legendary',
+                        multiplier: 2.2,
+                        price: 500000,
+                        icon: 'fas fa-robot',
+                        color: '#06D6A0',
+                        aura: '#06D6A0'
+                    },
+                    'phoenix': {
+                        id: 'phoenix',
+                        name: 'Феникс',
+                        rarity: 'mythic',
+                        multiplier: 3.0,
+                        price: 2000000,
+                        icon: 'fas fa-fire',
+                        color: '#FF006E',
+                        aura: '#FF006E'
+                    },
+                    'void': {
+                        id: 'void',
+                        name: 'Пустота',
+                        rarity: 'mythic',
+                        multiplier: 3.5,
+                        price: 5000000,
+                        icon: 'fas fa-meteor',
+                        color: '#000000',
+                        aura: '#7C3AED'
+                    },
+                    'snowman': {
+                        id: 'snowman',
+                        name: 'Снеговик',
+                        rarity: 'epic',
+                        multiplier: 1.8,
+                        price: 75000,
+                        icon: 'fas fa-snowman',
+                        color: '#60A5FA',
+                        aura: '#60A5FA'
+                    }
+                };
+            }
+            
+            createSnowflakes() {
+                const snowflakes = ['❄', '❅', '❆', '✻', '✼', '✦'];
+                const container = document.getElementById('snowflakes');
+                
+                for (let i = 0; i < 50; i++) {
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    snowflake.innerHTML = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                    
+                    // Случайные параметры
+                    const left = Math.random() * 100;
+                    const size = Math.random() * 1.5 + 0.5;
+                    const duration = Math.random() * 10 + 5;
+                    const delay = Math.random() * 5;
+                    
+                    snowflake.style.left = left + 'vw';
+                    snowflake.style.fontSize = size + 'rem';
+                    snowflake.style.animationDuration = duration + 's';
+                    snowflake.style.animationDelay = delay + 's';
+                    
+                    container.appendChild(snowflake);
+                    
+                    // Пересоздаем снежинку после анимации
+                    setTimeout(() => {
+                        if (snowflake.parentNode) {
+                            snowflake.remove();
+                            this.createSingleSnowflake();
+                        }
+                    }, (duration + delay) * 1000);
+                }
+            }
+            
+            createSingleSnowflake() {
+                const snowflakes = ['❄', '❅', '❆', '✻', '✼', '✦'];
+                const container = document.getElementById('snowflakes');
+                
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                
+                const left = Math.random() * 100;
+                const size = Math.random() * 1.5 + 0.5;
+                const duration = Math.random() * 10 + 5;
+                
+                snowflake.style.left = left + 'vw';
+                snowflake.style.fontSize = size + 'rem';
+                snowflake.style.animationDuration = duration + 's';
+                
+                container.appendChild(snowflake);
+                
+                setTimeout(() => {
+                    if (snowflake.parentNode) {
+                        snowflake.remove();
+                    }
+                }, duration * 1000);
+            }
+            
+            setupEventListeners() {
+                // Клик по монстру
+                document.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('.monster-display') || e.target.closest('.monster')) {
+                        this.handleClick(e);
+                        const monster = document.querySelector('.monster');
+                        monster.classList.add('touch-active');
+                    }
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    const monster = document.querySelector('.monster');
+                    if (monster) monster.classList.remove('touch-active');
+                });
+                
+                // Мобильные устройства
+                document.addEventListener('touchstart', (e) => {
+                    if (e.target.closest('.monster-display') || e.target.closest('.monster')) {
+                        const touch = e.touches[0];
+                        const event = new MouseEvent('mousedown', {
+                            clientX: touch.clientX,
+                            clientY: touch.clientY
+                        });
+                        this.handleClick(event);
+                        const monster = document.querySelector('.monster');
+                        monster.classList.add('touch-active');
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                document.addEventListener('touchend', () => {
+                    const monster = document.querySelector('.monster');
+                    if (monster) monster.classList.remove('touch-active');
+                });
+                
+                // Навигация
+                document.addEventListener('click', (e) => {
+                    const navBtn = e.target.closest('.nav-button');
+                    if (navBtn) {
+                        const tab = navBtn.dataset.tab;
+                        this.switchTab(tab);
+                    }
+                });
+                
+                // Кнопки
+                document.getElementById('saveGameBtn').addEventListener('click', () => this.saveGame());
+                document.getElementById('resetGameBtn').addEventListener('click', () => this.resetGame());
+                document.getElementById('startBtn').addEventListener('click', () => this.startGame());
+            }
+            
+            handleClick(event) {
+                if (this.isBlocked) {
+                    this.showNotification('Вы заблокированы за читерство!', 'error');
+                    return;
+                }
+                
+                const now = Date.now();
+                
+                // Анти-чит: проверка CPS
+                this.clickHistory = this.clickHistory.filter(time => now - time < 1000);
+                const cps = this.clickHistory.length;
+                
+                if (cps > this.maxCPS) {
+                    this.blockCheater('Автокликер обнаружен! Максимум 15 кликов в секунду.');
+                    return;
+                }
+                
+                // Анти-чит: проверка равномерности кликов
+                if (this.clickHistory.length >= 3) {
+                    const intervals = [];
+                    for (let i = 1; i < this.clickHistory.length; i++) {
+                        intervals.push(this.clickHistory[i] - this.clickHistory[i-1]);
+                    }
+                    
+                    const isAutoClicker = intervals.every(interval => 
+                        Math.abs(interval - intervals[0]) < 20
+                    );
+                    
+                    if (isAutoClicker && intervals.length >= 3) {
+                        this.blockCheater('Обнаружен макрос! Слишком равномерные клики.');
+                        return;
+                    }
+                }
+                
+                // Анти-чит: проверка позиций
+                const x = Math.round(event.clientX / 10) * 10;
+                const y = Math.round(event.clientY / 10) * 10;
+                const positionKey = `${x},${y}`;
+                
+                this.lastClickPositions = this.lastClickPositions.filter(pos => now - pos.time < 5000);
+                const samePositionCount = this.lastClickPositions.filter(pos => pos.key === positionKey).length;
+                
+                if (samePositionCount > this.maxSamePositionClicks) {
+                    this.blockCheater('Подозрительная активность! Слишком много кликов в одну точку.');
+                    return;
+                }
+                
+                this.lastClickPositions.push({ key: positionKey, time: now });
+                this.clickHistory.push(now);
+                this.clickTimes.push(now);
+                
+                // Обновление CPS
+                this.clickTimes = this.clickTimes.filter(time => now - time < 1000);
+                this.cps = this.clickTimes.length;
+                document.getElementById('cpsCounter').textContent = this.cps;
+                
+                // Проверка энергии
+                if (this.gameData.energy < this.gameData.energyCost) {
+                    this.showNotification('Недостаточно энергии! Отдохните немного.', 'warning');
+                    return;
+                }
+                
+                // Расход энергии
+                this.gameData.energy -= this.gameData.energyCost;
+                
+                // Расчет золота
+                let goldPerClick = this.gameData.clickPower * this.difficultySettings[this.difficulty].multiplier;
+                
+                // Активные бусты
+                this.gameData.activeBoosts.forEach(boost => {
+                    if (boost.type === 'click_power') {
+                        goldPerClick *= boost.multiplier;
+                    }
+                });
+                
+                // Сезонный множитель
+                if (this.gameData.seasonalEvent.active) {
+                    goldPerClick *= this.gameData.seasonalEvent.multiplier;
+                }
+                
+                // Скин
+                const skin = this.gameData.skinsData[this.gameData.equippedSkin];
+                goldPerClick *= skin.multiplier;
+                
+                // Критический удар
+                let isCritical = false;
+                let criticalMultiplier = 2;
+                let criticalChance = 0.05;
+                
+                this.gameData.activeBoosts.forEach(boost => {
+                    if (boost.type === 'critical_chance') {
+                        criticalChance = boost.chance;
+                    }
+                });
+                
+                if (Math.random() < criticalChance) {
+                    goldPerClick *= criticalMultiplier;
+                    isCritical = true;
+                    this.gameData.stats.criticalHits++;
+                }
+                
+                // Округление
+                goldPerClick = Math.floor(goldPerClick);
+                if (goldPerClick < 1) goldPerClick = 1;
+                
+                // Добавление золота
+                this.gameData.gold += goldPerClick;
+                this.gameData.totalGold += goldPerClick;
+                this.gameData.totalClicks++;
+                
+                // Опыт
+                this.gameData.experience += Math.floor(goldPerClick / 10);
+                
+                // Проверка уровня
+                if (this.gameData.experience >= this.gameData.maxExperience) {
+                    this.levelUp();
+                }
+                
+                // Статистика
+                this.gameData.stats.currentStreak++;
+                if (this.gameData.stats.currentStreak > this.gameData.stats.maxClickStreak) {
+                    this.gameData.stats.maxClickStreak = this.gameData.stats.currentStreak;
+                }
+                
+                // Проверка достижений
+                this.checkAchievements();
+                
+                // Эффекты
+                this.createClickEffects(event, goldPerClick, isCritical);
+                
+                // Разблокировка бизнесов
+                this.unlockBusinesses();
+                
+                // Обновление UI
+                this.updateUI();
+                
+                // Автосохранение
+                if (this.gameData.totalClicks % 50 === 0) {
+                    this.saveGame(false);
+                }
+            }
+            
+            unlockBusinesses() {
+                Object.values(this.gameData.businesses).forEach(business => {
+                    if (!business.unlocked) {
+                        if (this.gameData.totalGold >= business.baseCost * 0.5) {
+                            business.unlocked = true;
+                            this.showNotification(`Разблокирован бизнес: ${business.name}!`, 'info');
+                        }
+                    }
+                });
+            }
+            
+            checkAchievements() {
+                Object.values(this.achievementsData).forEach(achievement => {
+                    if (!this.gameData.achievements.includes(achievement.id)) {
+                        if (achievement.condition(this.gameData)) {
+                            this.unlockAchievement(achievement);
+                        }
+                    }
+                });
+            }
+            
+            unlockAchievement(achievement) {
+                this.gameData.achievements.push(achievement.id);
+                this.gameData.gold += achievement.reward;
+                
+                this.showNotification(
+                    `Достижение разблокировано: ${achievement.name}!<br>+${achievement.reward} Gold`,
+                    'success'
+                );
+                
+                if (this.currentTab === 'achievements') {
+                    this.loadTabContent('achievements');
+                }
+            }
+            
+            blockCheater(reason) {
+                if (this.isBlocked) return;
+                
+                this.isBlocked = true;
+                this.blockTimer = 30;
+                
+                this.showNotification(`${reason} Блокировка на 30 секунд.`, 'error');
+                
+                const timerInterval = setInterval(() => {
+                    this.blockTimer--;
+                    if (this.blockTimer <= 0) {
+                        clearInterval(timerInterval);
+                        this.isBlocked = false;
+                        this.clickHistory = [];
+                        this.lastClickPositions = [];
+                        this.showNotification('Блокировка снята. Играйте честно!', 'info');
+                    }
+                }, 1000);
+            }
+            
+            createClickEffects(event, amount, isCritical) {
+                const monster = document.querySelector('.monster-display') || document.querySelector('.monster');
+                if (!monster) return;
+                
+                const rect = monster.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                // Эффект клика
+                const clickEffect = document.createElement('div');
+                clickEffect.className = 'click-effect';
+                clickEffect.style.left = x + 'px';
+                clickEffect.style.top = y + 'px';
+                monster.appendChild(clickEffect);
+                setTimeout(() => clickEffect.remove(), 500);
+                
+                // Попап с золотом
+                const popup = document.createElement('div');
+                popup.className = isCritical ? 'critical-popup' : 'money-popup';
+                popup.textContent = '+' + amount;
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+                monster.appendChild(popup);
+                setTimeout(() => popup.remove(), 1000);
+                
+                // Частицы
+                if (isCritical) {
+                    for (let i = 0; i < 5; i++) {
+                        this.createParticle(x, y, '💥', 'critical');
+                    }
+                }
+                
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        this.createParticle(x, y, '💰', 'gold');
+                    }, i * 50);
+                }
+            }
+            
+            createParticle(x, y, text, type) {
+                const monster = document.querySelector('.monster-display') || document.querySelector('.monster');
+                if (!monster) return;
+                
+                const particle = document.createElement('div');
+                particle.className = 'particle-effect';
+                particle.textContent = text;
+                particle.style.left = (x + Math.random() * 40 - 20) + 'px';
+                particle.style.top = (y + Math.random() * 40 - 20) + 'px';
+                particle.style.color = type === 'critical' ? '#EF4444' : 
+                                      type === 'gold' ? '#FBBF24' : '#3B82F6';
+                monster.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+            
+            switchTab(tab) {
+                document.querySelectorAll('.nav-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+                this.currentTab = tab;
+                this.loadTabContent(tab);
+            }
+            
+            loadTabContent(tab) {
+                const content = document.getElementById('mainContent');
+                
+                switch(tab) {
+                    case 'clicker':
+                        content.innerHTML = this.renderClicker();
+                        this.updateMonsterAppearance();
+                        break;
+                    case 'businesses':
+                        content.innerHTML = this.renderBusinesses();
+                        break;
+                    case 'boosts':
+                        content.innerHTML = this.renderBoosts();
+                        break;
+                    case 'skins':
+                        content.innerHTML = this.renderSkins();
+                        break;
+                    case 'achievements':
+                        content.innerHTML = this.renderAchievements();
+                        break;
+                    case 'promo':
+                        content.innerHTML = this.renderPromoCodes();
+                        break;
+                }
+            }
+            
+            renderClicker() {
+                const skin = this.gameData.skinsData[this.gameData.equippedSkin];
+                const progress = (this.gameData.experience / this.gameData.maxExperience * 100).toFixed(1);
+                const seasonalTimeLeft = Math.max(0, this.gameData.seasonalEvent.endTime - Date.now());
+                const days = Math.floor(seasonalTimeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((seasonalTimeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                // Активные баффы
+                let activeBuffsHTML = '';
+                const now = Date.now();
+                const activeBoosts = this.gameData.activeBoosts.filter(boost => boost.expires > now);
+                
+                if (activeBoosts.length > 0) {
+                    activeBuffsHTML = `
+                        <div class="active-buffs-container">
+                            <div class="active-buffs-title">
+                                <i class="fas fa-bolt"></i> Активные баффы
+                            </div>
+                            <div class="active-buffs-grid">
+                                ${activeBoosts.map(boost => `
+                                    <div class="buff-tag">
+                                        <i class="fas fa-${boost.icon}"></i>
+                                        ${boost.name}: ${Math.ceil((boost.expires - now) / 1000)}с
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Сезонное событие
+                let seasonalHTML = '';
+                if (this.gameData.seasonalEvent.active) {
+                    seasonalHTML = `
+                        <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, rgba(96, 165, 250, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: var(--radius-sm); border: 1px solid rgba(96, 165, 250, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <i class="fas fa-snowflake" style="color: #60A5FA;"></i>
+                                <strong style="color: white;">${this.gameData.seasonalEvent.name}</strong>
+                                <span style="margin-left: auto; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                                    x${this.gameData.seasonalEvent.multiplier} к золоту
+                                </span>
+                            </div>
+                            <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                                До конца события: ${days}д ${hours}ч
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="clicker-section">
+                        <div class="monster-container">
+                            <div class="monster-display">
+                                <div class="monster">
+                                    <i class="${skin.icon}"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-value">${this.gameData.clickPower.toFixed(1)}</div>
+                                    <div class="stat-label">Сила клика</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${this.gameData.totalClicks.toLocaleString()}</div>
+                                    <div class="stat-label">Всего кликов</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${this.gameData.level}</div>
+                                    <div class="stat-label">Уровень</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${progress}%</div>
+                                    <div class="stat-label">Прогресс</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${this.formatNumber(this.gameData.totalGold)}</div>
+                                    <div class="stat-label">Всего Gold</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${skin.name}</div>
+                                    <div class="stat-label">Скин (x${skin.multiplier})</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${this.cps}</div>
+                                    <div class="stat-label">CPS</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${this.gameData.stats.criticalHits}</div>
+                                    <div class="stat-label">Криты</div>
+                                </div>
+                            </div>
+                            
+                            ${activeBuffsHTML}
+                            ${seasonalHTML}
+                            
+                            <div style="margin-top: 30px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i> Энергия тратится: ${this.gameData.energyCost.toFixed(1)} за клик
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderBusinesses() {
+                let businessesHTML = '';
+                const settings = this.difficultySettings[this.difficulty];
+                
+                Object.values(this.gameData.businesses).forEach(business => {
+                    if (!business.unlocked) return;
+                    
+                    const actualCost = Math.floor(business.cost * settings.costMultiplier);
+                    const actualIncome = business.income * settings.incomeMultiplier;
+                    const totalIncome = business.totalIncome.toFixed(1);
+                    
+                    businessesHTML += `
+                        <div class="business-card">
+                            <div class="business-header">
+                                <div class="business-icon">
+                                    <i class="${business.icon}"></i>
+                                </div>
+                                <div class="business-count">${business.level}</div>
+                            </div>
+                            <div class="business-name">${business.name}</div>
+                            <div class="business-description">${business.description}</div>
+                            <div class="business-stats">
+                                <div class="business-stat">
+                                    <div class="business-stat-label">Доход/сек</div>
+                                    <div class="business-stat-value business-income">+${actualIncome.toFixed(1)}</div>
+                                </div>
+                                <div class="business-stat">
+                                    <div class="business-stat-label">Стоимость</div>
+                                    <div class="business-stat-value business-cost">${this.formatNumber(actualCost)}</div>
+                                </div>
+                                <div class="business-stat">
+                                    <div class="business-stat-label">Куплено</div>
+                                    <div class="business-stat-value">${business.level}</div>
+                                </div>
+                                <div class="business-stat">
+                                    <div class="business-stat-label">Общий доход</div>
+                                    <div class="business-stat-value">${this.formatNumber(totalIncome)}</div>
+                                </div>
+                            </div>
+                            <button class="action-button" onclick="engine.buyBusiness('${business.id}')" 
+                                    ${this.gameData.gold < actualCost ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-cart"></i> Купить (${business.level})
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                // Заблокированные бизнесы
+                Object.values(this.gameData.businesses).forEach(business => {
+                    if (business.unlocked) return;
+                    
+                    businessesHTML += `
+                        <div class="business-card" style="opacity: 0.6; filter: grayscale(1);">
+                            <div class="business-header">
+                                <div class="business-icon" style="background: rgba(255, 255, 255, 0.1);">
+                                    <i class="${business.icon}"></i>
+                                </div>
+                                <div class="business-count" style="color: rgba(255, 255, 255, 0.5);">?</div>
+                            </div>
+                            <div class="business-name" style="color: rgba(255, 255, 255, 0.5);">???</div>
+                            <div class="business-description">Заблокировано. Заработайте больше золота для разблокировки</div>
+                            <div style="text-align: center; margin: 20px 0; color: rgba(255, 255, 255, 0.5);">
+                                <i class="fas fa-lock"></i> Заблокировано
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                return `
+                    <div class="businesses-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-building"></i> Бизнесы
+                        </h2>
+                        <div class="businesses-grid">
+                            ${businessesHTML}
+                        </div>
+                        <div style="margin-top: 20px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                            <i class="fas fa-exclamation-triangle"></i> Всего бизнесов: ${this.gameData.stats.totalBusinesses}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderBoosts() {
+                return `
+                    <div class="boosts-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-rocket"></i> Бусты
+                        </h2>
+                        <div class="boosts-grid">
+                            <div class="boost-card">
+                                <div class="boost-icon">
+                                    <i class="fas fa-fist-raised"></i>
+                                </div>
+                                <div class="boost-name">Двойной клик</div>
+                                <div class="boost-description">Удваивает силу клика на 30 секунд</div>
+                                <button class="action-button" onclick="engine.activateBoost('double_click')" 
+                                        ${this.gameData.gold < 5000 ? 'disabled' : ''}>
+                                    <i class="fas fa-bolt"></i> 5,000 Gold
+                                </button>
+                            </div>
+                            
+                            <div class="boost-card">
+                                <div class="boost-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="boost-name">Энергетик</div>
+                                <div class="boost-description">Восстанавливает 50 энергии</div>
+                                <button class="action-button" onclick="engine.activateBoost('energy_boost')" 
+                                        ${this.gameData.gold < 3000 ? 'disabled' : ''}>
+                                    <i class="fas fa-battery-full"></i> 3,000 Gold
+                                </button>
+                            </div>
+                            
+                            <div class="boost-card">
+                                <div class="boost-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="boost-name">Золотой дождь</div>
+                                <div class="boost-description">Увеличивает доход бизнесов x2 на 60 секунд</div>
+                                <button class="action-button" onclick="engine.activateBoost('gold_rain')" 
+                                        ${this.gameData.gold < 10000 ? 'disabled' : ''}>
+                                    <i class="fas fa-gift"></i> 10,000 Gold
+                                </button>
+                            </div>
+                            
+                            <div class="boost-card">
+                                <div class="boost-icon">
+                                    <i class="fas fa-gem"></i>
+                                </div>
+                                <div class="boost-name">Удача</div>
+                                <div class="boost-description">Шанс крита 30% на 45 секунд</div>
+                                <button class="action-button" onclick="engine.activateBoost('luck_boost')" 
+                                        ${this.gameData.gold < 7500 ? 'disabled' : ''}>
+                                    <i class="fas fa-star"></i> 7,500 Gold
+                                </button>
+                            </div>
+                            
+                            <div class="boost-card">
+                                <div class="boost-icon">
+                                    <i class="fas fa-snowflake"></i>
+                                </div>
+                                <div class="boost-name">Ледяной взрыв</div>
+                                <div class="boost-description">x3 сила клика на 15 секунд (сезонный)</div>
+                                <button class="action-button" onclick="engine.activateBoost('ice_blast')" 
+                                        ${this.gameData.gold < 15000 ? 'disabled' : ''}>
+                                    <i class="fas fa-ice-cream"></i> 15,000 Gold
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderSkins() {
+                let skinsHTML = '';
+                
+                Object.values(this.gameData.skinsData).forEach(skin => {
+                    const isOwned = this.gameData.skins.includes(skin.id);
+                    const isEquipped = this.gameData.equippedSkin === skin.id;
+                    
+                    skinsHTML += `
+                        <div class="skin-card ${skin.rarity} ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}"
+                             onclick="engine.handleSkinClick('${skin.id}')">
+                            <div class="skin-preview" style="background: linear-gradient(135deg, ${skin.color} 0%, ${this.darkenColor(skin.color, 20)} 100%)">
+                                <i class="${skin.icon}"></i>
+                            </div>
+                            <div class="skin-name">${skin.name}</div>
+                            <div class="skin-rarity">
+                                ${skin.rarity === 'common' ? 'Обычный' : 
+                                 skin.rarity === 'rare' ? 'Редкий' : 
+                                 skin.rarity === 'epic' ? 'Эпический' : 
+                                 skin.rarity === 'legendary' ? 'Легендарный' : 'Мифический'}
+                            </div>
+                            <div style="margin: 10px 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8)">
+                                Множитель: x${skin.multiplier}
+                            </div>
+                            <div style="margin-bottom: 15px; font-size: 0.9rem; color: ${isEquipped ? '#10B981' : 
+                                                                                     isOwned ? '#3B82F6' : 
+                                                                                     '#FBBF24'}">
+                                ${isEquipped ? 'Надет' : 
+                                  isOwned ? 'Надеть' : 
+                                  `${this.formatNumber(skin.price)} Gold`}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                return `
+                    <div class="skins-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-palette"></i> Скины
+                        </h2>
+                        <div class="skins-grid">
+                            ${skinsHTML}
+                        </div>
+                        <div style="margin-top: 20px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> Разблокировано скинов: ${this.gameData.skins.length}/9
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderAchievements() {
+                let achievementsHTML = '';
+                
+                Object.values(this.achievementsData).forEach(achievement => {
+                    const isUnlocked = this.gameData.achievements.includes(achievement.id);
+                    
+                    achievementsHTML += `
+                        <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                            <div class="achievement-icon">
+                                <i class="fas ${achievement.icon}"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">${achievement.name}</div>
+                                <div class="achievement-desc">${achievement.description}</div>
+                            </div>
+                            <div class="achievement-reward">
+                                ${isUnlocked ? '✓' : '+' + this.formatNumber(achievement.reward) + ' Gold'}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                return `
+                    <div class="achievements-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-trophy"></i> Достижения
+                        </h2>
+                        <div class="achievements-grid">
+                            ${achievementsHTML}
+                        </div>
+                        <div style="margin-top: 20px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> Разблокировано: ${this.gameData.achievements.length}/${Object.keys(this.achievementsData).length}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderPromoCodes() {
+                return `
+                    <div class="promo-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-ticket-alt"></i> Промокоды
+                        </h2>
+                        <div class="promo-container">
+                            <div class="promo-input-container">
+                                <input type="text" class="promo-input" id="promoCodeInput" 
+                                       placeholder="Введите промокод">
+                                <button class="action-button" onclick="engine.usePromoCode()">
+                                    <i class="fas fa-check"></i> Активировать
+                                </button>
+                            </div>
+                            <div style="text-align: center; margin-top: 20px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i> Использовано промокодов: ${this.gameData.promoUsed.length}
+                            </div>
+                            <div style="margin-top: 30px; padding: 20px; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-sm);">
+                                <h3 style="margin-bottom: 15px; color: white;">Активные промокоды:</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+                                    ${Object.values(this.promoCodes).filter(p => !p.hidden).map(promo => `
+                                        <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: var(--radius-sm); border: 1px solid rgba(124, 58, 237, 0.3);">
+                                            <div style="font-weight: bold; color: var(--gold);">${promo.code}</div>
+                                            <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">${promo.description}</div>
+                                            <div style="font-size: 0.8rem; color: ${this.gameData.promoUsed.includes(promo.code) ? '#EF4444' : '#10B981'}; margin-top: 5px;">
+                                                ${this.gameData.promoUsed.includes(promo.code) ? 'Использован' : 'Доступен'}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            buyBusiness(businessId) {
+                const business = this.gameData.businesses[businessId];
+                if (!business) return;
+                
+                const settings = this.difficultySettings[this.difficulty];
+                const actualCost = Math.floor(business.cost * settings.costMultiplier);
+                
+                if (this.gameData.gold < actualCost) {
+                    this.showNotification('Недостаточно Gold!', 'warning');
+                    return;
+                }
+                
+                this.gameData.gold -= actualCost;
+                business.level++;
+                this.gameData.stats.totalBusinesses++;
+                
+                // Пересчет
+                business.income = business.baseIncome * business.level * settings.incomeMultiplier;
+                business.cost = Math.floor(business.baseCost * Math.pow(1.5, business.level));
+                
+                this.showNotification(`Куплен ${business.name} (уровень ${business.level})! Доход: +${business.income.toFixed(1)}/сек`, 'success');
+                this.updateUI();
+                this.checkAchievements();
+                this.saveGame();
+            }
+            
+            activateBoost(boostType) {
+                let cost, boostData;
+                
+                switch(boostType) {
+                    case 'double_click':
+                        cost = 5000;
+                        if (this.gameData.gold < cost) {
+                            this.showNotification('Недостаточно Gold!', 'warning');
+                            return;
+                        }
+                        this.gameData.gold -= cost;
+                        boostData = {
+                            type: 'click_power',
+                            multiplier: 2,
+                            expires: Date.now() + 30000,
+                            name: 'Двойной клик',
+                            icon: 'fist-raised'
+                        };
+                        this.showNotification('Активирован Двойной клик! x2 сила клика на 30 секунд', 'success');
+                        break;
+                        
+                    case 'energy_boost':
+                        cost = 3000;
+                        if (this.gameData.gold < cost) {
+                            this.showNotification('Недостаточно Gold!', 'warning');
+                            return;
+                        }
+                        this.gameData.gold -= cost;
+                        this.gameData.energy = Math.min(this.gameData.maxEnergy, this.gameData.energy + 50);
+                        this.showNotification('+50 энергии!', 'success');
+                        return;
+                        
+                    case 'gold_rain':
+                        cost = 10000;
+                        if (this.gameData.gold < cost) {
+                            this.showNotification('Недостаточно Gold!', 'warning');
+                            return;
+                        }
+                        this.gameData.gold -= cost;
+                        boostData = {
+                            type: 'business_income',
+                            multiplier: 2,
+                            expires: Date.now() + 60000,
+                            name: 'Золотой дождь',
+                            icon: 'coins'
+                        };
+                        this.showNotification('Активирован Золотой дождь! x2 доход бизнесов на 60 секунд', 'success');
+                        break;
+                        
+                    case 'luck_boost':
+                        cost = 7500;
+                        if (this.gameData.gold < cost) {
+                            this.showNotification('Недостаточно Gold!', 'warning');
+                            return;
+                        }
+                        this.gameData.gold -= cost;
+                        boostData = {
+                            type: 'critical_chance',
+                            chance: 0.3,
+                            expires: Date.now() + 45000,
+                            name: 'Удача',
+                            icon: 'gem'
+                        };
+                        this.showNotification('Активирована Удача! 30% шанс крита на 45 секунд', 'success');
+                        break;
+                        
+                    case 'ice_blast':
+                        cost = 15000;
+                        if (this.gameData.gold < cost) {
+                            this.showNotification('Недостаточно Gold!', 'warning');
+                            return;
+                        }
+                        this.gameData.gold -= cost;
+                        boostData = {
+                            type: 'click_power',
+                            multiplier: 3,
+                            expires: Date.now() + 15000,
+                            name: 'Ледяной взрыв',
+                            icon: 'snowflake'
+                        };
+                        this.showNotification('Активирован Ледяной взрыв! x3 сила клика на 15 секунд', 'success');
+                        break;
+                }
+                
+                if (boostData) {
+                    this.gameData.activeBoosts.push(boostData);
+                    
+                    setTimeout(() => {
+                        this.gameData.activeBoosts = this.gameData.activeBoosts.filter(b => b !== boostData);
+                        if (this.currentTab === 'clicker') {
+                            this.loadTabContent('clicker');
+                        }
+                    }, boostData.expires - Date.now());
+                }
+                
+                this.updateUI();
+                this.saveGame();
+            }
+            
+            handleSkinClick(skinId) {
+                const skin = this.gameData.skinsData[skinId];
+                if (!skin) return;
+                
+                if (this.gameData.skins.includes(skinId)) {
+                    this.gameData.equippedSkin = skinId;
+                    this.showNotification(`Надет скин "${skin.name}" (x${skin.multiplier})`, 'success');
+                    this.updateMonsterAppearance();
+                } else if (this.gameData.gold >= skin.price) {
+                    this.gameData.gold -= skin.price;
+                    this.gameData.skins.push(skinId);
+                    this.gameData.equippedSkin = skinId;
+                    this.gameData.stats.skinsUnlocked++;
+                    this.showNotification(`Куплен скин "${skin.name}"! (x${skin.multiplier})`, 'success');
+                    this.updateMonsterAppearance();
+                    this.checkAchievements();
+                } else {
+                    this.showNotification(`Нужно ${this.formatNumber(skin.price)} Gold!`, 'warning');
+                }
+                
+                this.updateUI();
+                this.saveGame();
+            }
+            
+            usePromoCode() {
+                const input = document.getElementById('promoCodeInput');
+                if (!input) return;
+                
+                const code = input.value.trim().toUpperCase();
+                if (!code) {
+                    this.showNotification('Введите промокод', 'warning');
+                    return;
+                }
+                
+                const promo = this.promoCodes[code];
+                if (!promo) {
+                    this.showNotification('Неверный промокод', 'error');
+                    return;
+                }
+                
+                if (this.gameData.promoUsed.includes(code)) {
+                    this.showNotification('Этот промокод уже использован', 'warning');
+                    return;
+                }
+                
+                this.gameData.promoUsed.push(code);
+                
+                switch(promo.reward.type) {
+                    case 'gold':
+                        this.gameData.gold += promo.reward.amount;
+                        this.showNotification(`Промокод "${code}" активирован! +${promo.reward.amount} Gold`, 'success');
+                        break;
+                        
+                    case 'boost':
+                        this.activateBoost(promo.reward.id);
+                        this.showNotification(`Промокод "${code}" активирован!`, 'success');
+                        break;
+                }
+                
+                input.value = '';
+                this.updateUI();
+                this.saveGame();
+            }
+            
+            levelUp() {
+                this.gameData.level++;
+                this.gameData.experience = 0;
+                this.gameData.maxExperience = Math.floor(1000 * Math.pow(1.5, this.gameData.level - 1));
+                this.gameData.clickPower += 0.2;
+                
+                // Награда за уровень
+                const levelReward = this.gameData.level * 100;
+                this.gameData.gold += levelReward;
+                
+                this.showNotification(`Повышение до уровня ${this.gameData.level}!<br>+${levelReward} Gold<br>+0.2 к силе клика`, 'success');
+                this.updateUI();
+                this.checkAchievements();
+                this.saveGame();
+            }
+            
+            updateMonsterAppearance() {
+                const monster = document.querySelector('.monster');
+                if (!monster) return;
+                
+                const skin = this.gameData.skinsData[this.gameData.equippedSkin];
+                
+                monster.style.background = `linear-gradient(135deg, ${skin.color} 0%, ${this.darkenColor(skin.color, 20)} 100%)`;
+                
+                const icon = monster.querySelector('i');
+                if (icon) {
+                    icon.className = skin.icon;
+                }
+                
+                let aura = document.querySelector('.skin-aura');
+                if (skin.aura) {
+                    if (!aura) {
+                        aura = document.createElement('div');
+                        aura.className = 'skin-aura';
+                        monster.parentElement.appendChild(aura);
+                    }
+                    aura.style.setProperty('--aura-color', skin.aura);
+                    aura.style.display = 'block';
+                } else if (aura) {
+                    aura.style.display = 'none';
+                }
+            }
+            
+            darkenColor(color, percent) {
+                const num = parseInt(color.replace('#', ''), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = (num >> 16) - amt;
+                const G = (num >> 8 & 0x00FF) - amt;
+                const B = (num & 0x0000FF) - amt;
+                return `#${(0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                    (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                    (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1)}`;
+            }
+            
+            updateUI() {
+                document.getElementById('goldAmount').textContent = this.formatNumber(this.gameData.gold);
+                document.getElementById('footerGold').textContent = this.formatNumber(this.gameData.gold);
+                
+                const energyPercent = (this.gameData.energy / this.gameData.maxEnergy) * 100;
+                document.getElementById('energyFill').style.width = energyPercent + '%';
+                document.getElementById('energyValue').textContent = 
+                    `${Math.floor(this.gameData.energy)}/${this.gameData.maxEnergy}`;
+                
+                document.getElementById('currentLevel').textContent = this.gameData.level;
+                document.getElementById('cpsCounter').textContent = this.cps;
+            }
+            
+            showNotification(message, type = 'info') {
+                const container = document.getElementById('notificationContainer');
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div class="notification-title">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                            type === 'warning' ? 'exclamation-triangle' : 
+                                            type === 'error' ? 'times-circle' : 
+                                            'info-circle'}"></i>
+                        ${type === 'success' ? 'Успех!' : 
+                         type === 'warning' ? 'Внимание!' : 
+                         type === 'error' ? 'Ошибка!' : 
+                         'Информация'}
+                    </div>
+                    <div class="notification-message">${message}</div>
+                `;
+                
+                container.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 10);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 400);
+                }, 3000);
+            }
+            
+            startGameLoop() {
+                setInterval(() => {
+                    const now = Date.now();
+                    
+                    // Пассивный доход от бизнесов
+                    let passiveIncome = 0;
+                    let businessMultiplier = 1;
+                    
+                    // Применение баффа к бизнесам
+                    this.gameData.activeBoosts.forEach(boost => {
+                        if (boost.type === 'business_income' && boost.expires > now) {
+                            businessMultiplier *= boost.multiplier;
+                        }
+                    });
+                    
+                    Object.values(this.gameData.businesses).forEach(business => {
+                        if (business.level > 0) {
+                            const income = business.income * businessMultiplier;
+                            passiveIncome += income;
+                            this.gameData.gold += income / 10;
+                            this.gameData.totalGold += income / 10;
+                            business.totalIncome += income / 10;
+                        }
+                    });
+                    
+                    // Удаление истекших бустов
+                    this.gameData.activeBoosts = this.gameData.activeBoosts.filter(boost => boost.expires > now);
+                    
+                    // Регенерация энергии
+                    if (this.gameData.energy < this.gameData.maxEnergy) {
+                        let regenRate = this.gameData.energyRegen;
+                        this.gameData.energy = Math.min(
+                            this.gameData.maxEnergy, 
+                            this.gameData.energy + regenRate
+                        );
+                        this.updateUI();
+                    }
+                    
+                    // Обновление активных баффов
+                    if (this.currentTab === 'clicker') {
+                        this.loadTabContent('clicker');
+                    }
+                    
+                    // Создание снежинок
+                    if (Math.random() < 0.02) {
+                        this.createSingleSnowflake();
+                    }
+                    
+                }, 100);
+            }
+            
+            loadGame() {
+                try {
+                    const saved = localStorage.getItem('monstorclik_save');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        if (data.version === '1.3') {
+                            this.gameData = { ...this.gameData, ...data.gameData };
+                            this.difficulty = data.difficulty || 'normal';
+                            document.getElementById('playerId').textContent = this.gameData.playerId;
+                            
+                            document.querySelectorAll('.difficulty-option').forEach(opt => {
+                                opt.classList.remove('selected');
+                                if (opt.dataset.difficulty === this.difficulty) {
+                                    opt.classList.add('selected');
+                                }
+                            });
+                            
+                            this.updateUI();
+                            this.updateMonsterAppearance();
+                        }
+                    }
+                } catch (e) {
+                    console.log('Нет сохраненной игры');
+                }
+            }
+            
+            saveGame(showNotification = true) {
+                try {
+                    const saveData = {
+                        version: '1.3',
+                        timestamp: Date.now(),
+                        difficulty: this.difficulty,
+                        gameData: this.gameData
+                    };
+                    
+                    localStorage.setItem('monstorclik_save', JSON.stringify(saveData));
+                    
+                    if (showNotification) {
+                        this.showNotification('Игра сохранена!', 'success');
+                    }
+                } catch (e) {
+                    this.showNotification('Ошибка сохранения игры', 'error');
+                }
+            }
+            
+            resetGame() {
+                if (confirm('ВЫ УВЕРЕНЫ? Весь прогресс будет потерян навсегда!')) {
+                    localStorage.removeItem('monstorclik_save');
+                    location.reload();
+                }
+            }
+            
+            startGame() {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'block';
+                
+                this.currentTab = 'clicker';
+                this.loadTabContent('clicker');
+                this.updateUI();
+                this.updateMonsterAppearance();
+                
+                this.showNotification(
+                    `Добро пожаловать в MONSTORCLIK на сложности "${this.difficulty === 'normal' ? 'Нормальная' : 
+                    this.difficulty === 'hard' ? 'Сложная' : 'Экстрим'}"!<br>
+                     Активно сезонное событие "${this.gameData.seasonalEvent.name}"!`, 
+                    'success'
+                );
+                
+                setInterval(() => this.saveGame(false), 30000);
+            }
+            
+            formatNumber(num) {
+                if (num >= 1000000000) {
+                    return (num / 1000000000).toFixed(2) + 'B';
+                }
+                if (num >= 1000000) {
+                    return (num / 1000000).toFixed(2) + 'M';
+                }
+                if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
+                }
+                return Math.floor(num).toLocaleString();
+            }
+        }
+        
+        // Инициализация движка
+        window.engine = new MonstorClickEngine();
+    </script>
+</body>
+</html>
