@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tap & Top</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7C3AED;
+            --secondary: #10B981;
+            --dark: #0F172A;
+            --darker: #0A0F1C;
+            --light: #F8FAFC;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --skin-rare: #06D6A0;
+            --skin-epic: #9D4EDD;
+            --skin-legendary: #FF6B35;
+            --skin-mythic: #FF006E;
+            --energy: #3B82F6;
+            --purple-dark: #5B21B6;
+            --purple-light: #8B5CF6;
+            --silver-color: #C0C0C0;
+            --gold-color: #FFD700;
+            --emerald-color: #00D9C9;
+            --crystal-color: #C957FF;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-lg: 30px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'SF Pro Display', system-ui, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0A0F1C 0%, #1E293B 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            touch-action: manipulation;
+        }
+        
+        /* ХЕДЕР */
+        .compact-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.98) 0%, 
+                rgba(10, 15, 28, 0.98) 100%);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+            height: 70px;
+            backdrop-filter: blur(20px);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+        }
+        
+        .logo-text {
+            font-weight: 900;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* ВАЛЮТЫ */
+        .resources-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        
+        .currency-display {
+            background: linear-gradient(135deg, 
+                rgba(251, 191, 36, 0.2) 0%, 
+                rgba(245, 158, 11, 0.1) 100%);
+            padding: 10px 15px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            min-width: 140px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .currency-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+        
+        .silver-icon {
+            background: linear-gradient(135deg, 
+                var(--silver-color) 0%, 
+                #A0A0A0 100%);
+        }
+        
+        .gold-icon {
+            background: linear-gradient(135deg, 
+                var(--gold-color) 0%, 
+                #D4AF37 100%);
+        }
+        
+        .currency-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .currency-amount {
+            font-size: 1.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .silver-amount {
+            color: var(--silver-color);
+        }
+        
+        .gold-amount {
+            color: var(--gold-color);
+        }
+        
+        .currency-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .energy-display {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 140px;
+        }
+        
+        .energy-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .energy-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .energy-value {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--energy);
+        }
+        
+        .energy-bar {
+            height: 8px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                var(--energy) 0%, 
+                #60A5FA 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease-out;
+        }
+        
+        /* НАВИГАЦИЯ */
+        .navigation {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.95) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 999;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            overflow-x: auto;
+        }
+        
+        .nav-button {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.08) 0%, 
+                rgba(91, 33, 182, 0.04) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: var(--radius-sm);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 40px;
+        }
+        
+        .nav-button.active {
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .main-content {
+            padding: 15px;
+            padding-top: 140px;
+            padding-bottom: 100px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* КЛИКЕР */
+        .clicker-section {
+            margin-bottom: 20px;
+        }
+        
+        .monster-container {
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.9) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid rgba(124, 58, 237, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .monster-display {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 20px;
+            position: relative;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        .monster {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border-radius: 50%;
+            position: relative;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: white;
+            border: 10px solid rgba(15, 23, 42, 0.9);
+        }
+        
+        .monster:active {
+            transform: scale(0.95);
+        }
+        
+        /* СКИНЫ */
+        .skins-section {
+            margin-top: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        
+        .skin-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.9) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            border-radius: 18px;
+            padding: 20px;
+            border: 2px solid;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skin-card.common {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .skin-card.rare {
+            border-color: var(--skin-rare);
+        }
+        
+        .skin-card.epic {
+            border-color: var(--skin-epic);
+        }
+        
+        .skin-card.legendary {
+            border-color: var(--skin-legendary);
+        }
+        
+        .skin-card.mythic {
+            border-color: var(--skin-mythic);
+        }
+        
+        .skin-card.owned {
+            border-width: 3px;
+            box-shadow: 0 0 15px currentColor;
+        }
+        
+        .skin-card.equipped {
+            border-width: 3px;
+            box-shadow: 
+                0 0 25px currentColor,
+                inset 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+        
+        .skin-card:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+        
+        .skin-preview {
+            width: 90px;
+            height: 90px;
+            border-radius: 18px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .skin-name {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 6px;
+        }
+        
+        .skin-rarity {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+        
+        .skin-card.common .skin-rarity {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .skin-card.rare .skin-rarity {
+            background: var(--skin-rare);
+            color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .skin-card.epic .skin-rarity {
+            background: var(--skin-epic);
+            color: white;
+        }
+        
+        .skin-card.legendary .skin-rarity {
+            background: var(--skin-legendary);
+            color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .skin-card.mythic .skin-rarity {
+            background: var(--skin-mythic);
+            color: white;
+        }
+        
+        /* ИНВЕНТАРЬ */
+        .inventory-section {
+            margin-top: 30px;
+        }
+        
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        
+        .inventory-item {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.9) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .inventory-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(124, 58, 237, 0.5);
+        }
+        
+        .inventory-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        
+        /* ЛУТБОКСЫ */
+        .lootboxes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .lootbox-card {
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 0.9) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            border-radius: 18px;
+            padding: 20px;
+            border: 2px solid;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .lootbox-card.silver {
+            border-color: var(--silver-color);
+            background: linear-gradient(135deg, 
+                rgba(192, 192, 192, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .lootbox-card.gold {
+            border-color: var(--gold-color);
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .lootbox-card.emerald {
+            border-color: var(--emerald-color);
+            background: linear-gradient(135deg, 
+                rgba(0, 217, 201, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+        }
+        
+        .lootbox-card.crystal {
+            border-color: var(--crystal-color);
+            background: linear-gradient(135deg, 
+                rgba(201, 87, 255, 0.1) 0%, 
+                rgba(15, 23, 42, 0.95) 100%);
+            animation: mythicGlow 2s infinite alternate;
+        }
+        
+        .lootbox-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 15px;
+            color: white;
+        }
+        
+        .lootbox-card.silver .lootbox-icon {
+            background: linear-gradient(135deg, 
+                var(--silver-color) 0%, 
+                #A0A0A0 100%);
+        }
+        
+        .lootbox-card.gold .lootbox-icon {
+            background: linear-gradient(135deg, 
+                var(--gold-color) 0%, 
+                #D4AF37 100%);
+        }
+        
+        .lootbox-card.emerald .lootbox-icon {
+            background: linear-gradient(135deg, 
+                var(--emerald-color) 0%, 
+                #009688 100%);
+        }
+        
+        .lootbox-card.crystal .lootbox-icon {
+            background: linear-gradient(135deg, 
+                var(--crystal-color) 0%, 
+                #8A2BE2 100%);
+        }
+        
+        .lootbox-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .lootbox-price {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        .lootbox-card.silver .lootbox-price {
+            background: rgba(192, 192, 192, 0.2);
+            color: var(--silver-color);
+        }
+        
+        .lootbox-card.gold .lootbox-price {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--gold-color);
+        }
+        
+        .lootbox-card.emerald .lootbox-price {
+            background: rgba(0, 217, 201, 0.2);
+            color: var(--emerald-color);
+        }
+        
+        .lootbox-card.crystal .lootbox-price {
+            background: rgba(201, 87, 255, 0.2);
+            color: var(--crystal-color);
+        }
+        
+        /* КНОПКИ */
+        .action-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, 
+                var(--primary) 0%, 
+                var(--purple-dark) 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .action-button:active {
+            transform: translateY(1px);
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* ФУТЕР */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.95) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-info {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            flex: 1;
+        }
+        
+        .footer-info strong {
+            color: var(--accent);
+        }
+        
+        /* НОТИФИКАЦИИ */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            z-index: 9999;
+        }
+        
+        .notification {
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.95) 0%, 
+                rgba(10, 15, 28, 0.95) 100%);
+            border-radius: var(--radius-sm);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left-color: var(--success);
+        }
+        
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+        
+        /* АНИМАЦИИ */
+        @keyframes mythicGlow {
+            0% { box-shadow: 0 0 10px var(--crystal-color); }
+            100% { box-shadow: 0 0 30px var(--crystal-color); }
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-40px) scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
+        @media (max-width: 768px) {
+            .compact-header {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .resources-container {
+                width: 100%;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            
+            .currency-display,
+            .energy-display {
+                min-width: 48%;
+                padding: 8px 10px;
+            }
+            
+            .navigation {
+                top: 120px;
+                padding: 8px;
+                gap: 5px;
+            }
+            
+            .main-content {
+                padding-top: 130px;
+                padding-bottom: 120px;
+            }
+            
+            .monster-display {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .monster {
+                font-size: 3.5rem;
+            }
+            
+            .skins-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .lootboxes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                padding: 10px;
+            }
+        }
+        
+        .money-popup {
+            position: absolute;
+            color: var(--gold-color);
+            font-weight: 900;
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUp 1s forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
+    <div id="gameContainer">
+        <!-- ХЕДЕР -->
+        <header class="compact-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-hand-pointer"></i>
+                </div>
+                <div class="logo-text">Tap & Top</div>
+            </div>
+            
+            <div class="resources-container">
+                <!-- SILVER -->
+                <div class="currency-display">
+                    <div class="currency-icon silver-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="currency-info">
+                        <div class="currency-amount silver-amount" id="silverAmount">0</div>
+                        <div class="currency-label">Silver</div>
+                    </div>
+                </div>
+                
+                <!-- GOLD -->
+                <div class="currency-display">
+                    <div class="currency-icon gold-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="currency-info">
+                        <div class="currency-amount gold-amount" id="goldAmount">0</div>
+                        <div class="currency-label">Gold</div>
+                    </div>
+                </div>
+                
+                <!-- ЭНЕРГИЯ -->
+                <div class="energy-display">
+                    <div class="energy-info">
+                        <div class="energy-label">
+                            <i class="fas fa-bolt"></i> Энергия:
+                        </div>
+                        <div class="energy-value" id="energyValue">100/100</div>
+                    </div>
+                    <div class="energy-bar">
+                        <div class="energy-fill" id="energyFill"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- НАВИГАЦИЯ -->
+        <nav class="navigation">
+            <button class="nav-button active" data-tab="clicker">
+                <i class="fas fa-fist-raised"></i> Тапалка
+            </button>
+            <button class="nav-button" data-tab="skins">
+                <i class="fas fa-palette"></i> Скины
+            </button>
+            <button class="nav-button" data-tab="lootboxes">
+                <i class="fas fa-gift"></i> Лутбоксы
+            </button>
+            <button class="nav-button" data-tab="inventory">
+                <i class="fas fa-box"></i> Инвентарь
+            </button>
+        </nav>
+        
+        <!-- ОСНОВНОЙ КОНТЕНТ -->
+        <main class="main-content" id="mainContent">
+            <!-- Контент будет загружаться динамически -->
+        </main>
+        
+        <!-- ФУТЕР -->
+        <footer class="footer">
+            <div class="footer-info">
+                <strong>Tap & Top</strong> © 2024 | Уровень: <span id="currentLevel">1</span> | Silver: <span id="footerSilver">0</span> | Gold: <span id="footerGold">0</span>
+            </div>
+            
+            <div class="footer-actions">
+                <button class="action-button" id="saveGameBtn" style="padding: 8px 16px; font-size: 0.9rem;">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- УВЕДОМЛЕНИЯ -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script>
+        // ============ ДВИЖОК ИГРЫ TAP & TOP ============
+        class TapTopEngine {
+            constructor() {
+                // Игровые данные
+                this.gameData = {
+                    playerId: this.generatePlayerId(),
+                    nickname: 'Игрок_' + Math.floor(Math.random() * 1000),
+                    
+                    // ВАЛЮТЫ
+                    silver: 0,
+                    gold: 0,
+                    
+                    // ИГРОК
+                    level: 1,
+                    experience: 0,
+                    maxExperience: 1000,
+                    clickPower: 1,
+                    totalClicks: 0,
+                    
+                    // ЭНЕРГИЯ
+                    energy: 100,
+                    maxEnergy: 100,
+                    energyCost: 0.1,
+                    energyRegen: 0.5,
+                    
+                    // СКИНЫ
+                    skins: ['default'],
+                    equippedSkin: 'default',
+                    
+                    // ЛУТБОКСЫ В ИНВЕНТАРЕ
+                    inventory: {
+                        silver: 0,
+                        gold: 0,
+                        emerald: 0,
+                        crystal: 0
+                    },
+                    
+                    // ДОСТИЖЕНИЯ
+                    achievements: [],
+                    
+                    // СТАТИСТИКА
+                    stats: {
+                        sessionStart: Date.now(),
+                        totalTime: 0,
+                        maxClickStreak: 0,
+                        currentStreak: 0,
+                        criticalHits: 0,
+                        skinsUnlocked: 1,
+                        lootboxesOpened: 0,
+                        totalSilverEarned: 0,
+                        totalGoldEarned: 0
+                    },
+                    
+                    // АКТИВНЫЕ БУСТЫ
+                    activeBoosts: []
+                };
+                
+                // ДАННЫЕ СКИНОВ
+                this.skinsData = {
+                    'default': {
+                        id: 'default',
+                        name: 'Стандартный',
+                        rarity: 'common',
+                        multiplier: 1.0,
+                        price: 0,
+                        icon: 'fas fa-hand-pointer',
+                        color: '#7C3AED',
+                        description: 'Базовый скин'
+                    },
+                    
+                    // COMMON
+                    'wooden': {
+                        id: 'wooden',
+                        name: 'Деревянный',
+                        rarity: 'common',
+                        multiplier: 1.1,
+                        price: 1000,
+                        icon: 'fas fa-tree',
+                        color: '#8B4513',
+                        description: '+10% к силе клика'
+                    },
+                    'stone': {
+                        id: 'stone',
+                        name: 'Каменный',
+                        rarity: 'common',
+                        multiplier: 1.2,
+                        price: 5000,
+                        icon: 'fas fa-mountain',
+                        color: '#808080',
+                        description: '+20% к силе клика'
+                    },
+                    
+                    // RARE
+                    'bronze': {
+                        id: 'bronze',
+                        name: 'Бронзовый',
+                        rarity: 'rare',
+                        multiplier: 1.3,
+                        price: 20000,
+                        icon: 'fas fa-shield-alt',
+                        color: '#CD7F32',
+                        description: '+30% к силе клика'
+                    },
+                    'silver_skin': {
+                        id: 'silver_skin',
+                        name: 'Серебряный',
+                        rarity: 'rare',
+                        multiplier: 1.4,
+                        price: 50000,
+                        icon: 'fas fa-coins',
+                        color: '#C0C0C0',
+                        description: '+40% к силе клика'
+                    },
+                    
+                    // EPIC
+                    'golden': {
+                        id: 'golden',
+                        name: 'Золотой',
+                        rarity: 'epic',
+                        multiplier: 1.8,
+                        price: 100000,
+                        icon: 'fas fa-crown',
+                        color: '#FFD700',
+                        description: '+80% к силе клика'
+                    },
+                    'emerald_skin': {
+                        id: 'emerald_skin',
+                        name: 'Изумрудный',
+                        rarity: 'epic',
+                        multiplier: 2.0,
+                        price: 200000,
+                        icon: 'fas fa-gem',
+                        color: '#00D9C9',
+                        description: 'x2 сила клика'
+                    },
+                    
+                    // LEGENDARY
+                    'crystal_skin': {
+                        id: 'crystal_skin',
+                        name: 'Кристальный',
+                        rarity: 'legendary',
+                        multiplier: 2.5,
+                        price: 500000,
+                        icon: 'fas fa-diamond',
+                        color: '#C957FF',
+                        description: 'x2.5 сила клика'
+                    },
+                    'dragon': {
+                        id: 'dragon',
+                        name: 'Драконий',
+                        rarity: 'legendary',
+                        multiplier: 3.0,
+                        price: 1000000,
+                        icon: 'fas fa-dragon',
+                        color: '#FF6B35',
+                        description: 'x3 сила клика'
+                    },
+                    
+                    // MYTHIC
+                    'phoenix': {
+                        id: 'phoenix',
+                        name: 'Феникс',
+                        rarity: 'mythic',
+                        multiplier: 4.0,
+                        price: 5000000,
+                        icon: 'fas fa-fire',
+                        color: '#FF006E',
+                        description: 'x4 сила клика'
+                    },
+                    'void': {
+                        id: 'void',
+                        name: 'Пустота',
+                        rarity: 'mythic',
+                        multiplier: 5.0,
+                        price: 10000000,
+                        icon: 'fas fa-meteor',
+                        color: '#000000',
+                        description: 'x5 сила клика'
+                    }
+                };
+                
+                // ДАННЫЕ ЛУТБОКСОВ
+                this.lootboxesData = {
+                    'silver': {
+                        id: 'silver',
+                        name: 'Серебряный лутбокс',
+                        price: { silver: 10000 },
+                        icon: 'fas fa-box',
+                        color: '#C0C0C0',
+                        rewards: [
+                            { type: 'boost', duration: 60, power: 1.5, chance: 90 },
+                            { type: 'skin', rarity: ['common', 'rare'], chance: 9 },
+                            { type: 'gold', amount: 1, chance: 1 }
+                        ],
+                        description: 'Базовый лутбокс с бустами и шансом на скин'
+                    },
+                    
+                    'gold': {
+                        id: 'gold',
+                        name: 'Золотой лутбокс',
+                        price: { silver: 50000 },
+                        icon: 'fas fa-box-open',
+                        color: '#FFD700',
+                        rewards: [
+                            { type: 'boost', duration: 300, power: 2.0, chance: 60 },
+                            { type: 'skin', rarity: ['rare', 'epic'], chance: 30 },
+                            { type: 'emerald_lootbox', chance: 10 }
+                        ],
+                        description: 'Шанс на эпические скины и изумрудный лутбокс'
+                    },
+                    
+                    'emerald': {
+                        id: 'emerald',
+                        name: 'Изумрудный лутбокс',
+                        price: { gold: 50 },
+                        icon: 'fas fa-gem',
+                        color: '#00D9C9',
+                        rewards: [
+                            { type: 'boost', duration: 900, power: 3.0, chance: 50 },
+                            { type: 'skin', rarity: ['epic'], chance: 30 },
+                            { type: 'crystal_lootbox', chance: 15 },
+                            { type: 'skin', rarity: ['legendary'], chance: 5 }
+                        ],
+                        description: 'Эпические и легендарные скины + кристальный лутбокс'
+                    },
+                    
+                    'crystal': {
+                        id: 'crystal',
+                        name: 'Кристальный лутбокс',
+                        price: { gold: 500 },
+                        icon: 'fas fa-crown',
+                        color: '#C957FF',
+                        rewards: [
+                            { type: 'skin', rarity: ['legendary', 'mythic'], chance: 40 },
+                            { type: 'permanent_boost', power: 1.2, chance: 35 },
+                            { type: 'special_ability', chance: 20 },
+                            { type: 'special_skin', chance: 5 }
+                        ],
+                        description: 'Только легендарные и мифические скины + перманентные бусты'
+                    }
+                };
+                
+                // ДОСТИЖЕНИЯ
+                this.achievementsData = {
+                    'first_click': {
+                        id: 'first_click',
+                        name: 'Первый клик',
+                        description: 'Сделать первый клик',
+                        reward: { silver: 100 },
+                        condition: (game) => game.totalClicks >= 1,
+                        icon: 'fa-mouse-pointer'
+                    },
+                    'silver_collector': {
+                        id: 'silver_collector',
+                        name: 'Коллекционер серебра',
+                        description: 'Заработать 10,000 Silver',
+                        reward: { silver: 1000 },
+                        condition: (game) => game.silver >= 10000,
+                        icon: 'fa-coins'
+                    },
+                    'click_master': {
+                        id: 'click_master',
+                        name: 'Мастер кликов',
+                        description: 'Сделать 1000 кликов',
+                        reward: { silver: 5000 },
+                        condition: (game) => game.totalClicks >= 1000,
+                        icon: 'fa-fist-raised'
+                    },
+                    'skin_collector': {
+                        id: 'skin_collector',
+                        name: 'Коллекционер скинов',
+                        description: 'Разблокировать 5 скинов',
+                        reward: { silver: 10000, gold: 5 },
+                        condition: (game) => game.stats.skinsUnlocked >= 5,
+                        icon: 'fa-palette'
+                    },
+                    'gold_finder': {
+                        id: 'gold_finder',
+                        name: 'Искатель золота',
+                        description: 'Получить 100 Gold',
+                        reward: { gold: 10 },
+                        condition: (game) => game.gold >= 100,
+                        icon: 'fa-gem'
+                    }
+                };
+                
+                // Инициализация
+                this.init();
+            }
+            
+            generatePlayerId() {
+                const timestamp = Date.now().toString(36);
+                const random = Math.random().toString(36).substring(2, 8);
+                return `TT_${timestamp}_${random}`.toUpperCase();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.startGameLoop();
+                this.loadGame();
+                
+                // Показываем ID игрока
+                this.showNotification(`Добро пожаловать в Tap & Top!<br>ID: ${this.gameData.playerId}`, 'success');
+                
+                // Запускаем игру
+                this.currentTab = 'clicker';
+                this.loadTabContent('clicker');
+                this.updateUI();
+                this.updateMonsterAppearance();
+                
+                // Автосохранение каждые 30 секунд
+                setInterval(() => this.saveGame(false), 30000);
+            }
+            
+            setupEventListeners() {
+                // Навигация
+                document.addEventListener('click', (e) => {
+                    const navBtn = e.target.closest('.nav-button');
+                    if (navBtn) {
+                        const tab = navBtn.dataset.tab;
+                        this.switchTab(tab);
+                    }
+                });
+                
+                // Кнопка сохранения
+                document.getElementById('saveGameBtn').addEventListener('click', () => this.saveGame());
+                
+                // Делегирование событий
+                document.addEventListener('click', (e) => {
+                    const target = e.target;
+                    
+                    // Обработка скинов
+                    if (target.closest('.skin-card')) {
+                        const skinCard = target.closest('.skin-card');
+                        const skinId = skinCard.dataset.skin;
+                        if (skinId) this.handleSkinClick(skinId);
+                    }
+                    
+                    // Обработка лутбоксов
+                    if (target.classList.contains('buy-lootbox-btn')) {
+                        const lootboxType = target.dataset.lootbox;
+                        if (lootboxType) this.buyLootbox(lootboxType);
+                    }
+                    
+                    // Обработка открытия лутбоксов
+                    if (target.closest('.open-lootbox-btn')) {
+                        const lootboxType = target.closest('.open-lootbox-btn').dataset.lootbox;
+                        if (lootboxType) this.openLootbox(lootboxType);
+                    }
+                });
+            }
+            
+            handleClick(event) {
+                if (this.gameData.energy < this.gameData.energyCost) {
+                    this.showNotification('Недостаточно энергии!', 'warning');
+                    return;
+                }
+                
+                this.gameData.energy -= this.gameData.energyCost;
+                
+                let silverPerClick = this.gameData.clickPower;
+                
+                // Применяем множитель скина
+                const skin = this.skinsData[this.gameData.equippedSkin];
+                silverPerClick *= skin.multiplier;
+                
+                // Применяем активные бусты
+                this.gameData.activeBoosts.forEach(boost => {
+                    if (boost.type === 'click_power') {
+                        silverPerClick *= boost.multiplier;
+                    }
+                });
+                
+                // Шанс крита
+                let isCritical = false;
+                if (Math.random() < 0.05) { // 5% шанс крита
+                    silverPerClick *= 2;
+                    isCritical = true;
+                    this.gameData.stats.criticalHits++;
+                }
+                
+                silverPerClick = Math.floor(silverPerClick);
+                
+                this.gameData.silver += silverPerClick;
+                this.gameData.totalClicks++;
+                this.gameData.stats.totalSilverEarned += silverPerClick;
+                this.gameData.stats.currentStreak++;
+                
+                // Опыт
+                this.gameData.experience += Math.floor(silverPerClick / 10);
+                if (this.gameData.experience >= this.gameData.maxExperience) {
+                    this.levelUp();
+                }
+                
+                // Проверяем достижения
+                this.checkAchievements();
+                
+                // Эффект клика
+                this.createClickEffect(event, silverPerClick, isCritical);
+                
+                this.updateUI();
+            }
+            
+            createClickEffect(event, amount, isCritical) {
+                const monster = document.querySelector('.monster-display');
+                if (!monster) return;
+                
+                const rect = monster.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                const popup = document.createElement('div');
+                popup.className = 'money-popup';
+                popup.textContent = '+' + amount;
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+                monster.appendChild(popup);
+                setTimeout(() => popup.remove(), 1000);
+                
+                // Эффект нажатия
+                monster.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    monster.style.transform = 'scale(1)';
+                }, 100);
+            }
+            
+            switchTab(tab) {
+                document.querySelectorAll('.nav-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+                this.currentTab = tab;
+                this.loadTabContent(tab);
+                
+                setTimeout(() => {
+                    this.attachMonsterListeners();
+                }, 100);
+            }
+            
+            attachMonsterListeners() {
+                const monsterDisplay = document.querySelector('.monster-display');
+                const monster = document.querySelector('.monster');
+                
+                if (monsterDisplay) {
+                    monsterDisplay.onmousedown = (e) => this.handleClick(e);
+                    monsterDisplay.ontouchstart = (e) => {
+                        e.preventDefault();
+                        this.handleClick(e);
+                    };
+                }
+            }
+            
+            loadTabContent(tab) {
+                const content = document.getElementById('mainContent');
+                
+                switch(tab) {
+                    case 'clicker':
+                        content.innerHTML = this.renderClicker();
+                        this.updateMonsterAppearance();
+                        setTimeout(() => this.attachMonsterListeners(), 100);
+                        break;
+                    case 'skins':
+                        content.innerHTML = this.renderSkins();
+                        break;
+                    case 'lootboxes':
+                        content.innerHTML = this.renderLootboxes();
+                        break;
+                    case 'inventory':
+                        content.innerHTML = this.renderInventory();
+                        break;
+                }
+                
+                this.updateUI();
+            }
+            
+            renderClicker() {
+                const skin = this.skinsData[this.gameData.equippedSkin];
+                const progress = (this.gameData.experience / this.gameData.maxExperience * 100).toFixed(1);
+                
+                return `
+                    <div class="clicker-section">
+                        <div class="monster-container">
+                            <div class="monster-display">
+                                <div class="monster">
+                                    <i class="${skin.icon}"></i>
+                                </div>
+                            </div>
+                            
+                            <div style="margin: 20px 0; color: rgba(255, 255, 255, 0.7);">
+                                <div style="font-size: 1.1rem; margin-bottom: 10px;">
+                                    <i class="fas fa-bolt"></i> Энергия тратится: ${this.gameData.energyCost.toFixed(1)} за клик
+                                </div>
+                                <div style="font-size: 0.9rem;">
+                                    Уровень: ${this.gameData.level} | Прогресс: ${progress}%
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px;">
+                                <div style="text-align: center; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 10px;">
+                                    <div style="font-size: 1.3rem; font-weight: 800; color: var(--silver-color);">
+                                        ${this.gameData.clickPower.toFixed(1)}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">
+                                        Сила клика
+                                    </div>
+                                </div>
+                                
+                                <div style="text-align: center; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 10px;">
+                                    <div style="font-size: 1.3rem; font-weight: 800; color: var(--gold-color);">
+                                        x${skin.multiplier}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">
+                                        Множитель
+                                    </div>
+                                </div>
+                                
+                                <div style="text-align: center; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 10px;">
+                                    <div style="font-size: 1.3rem; font-weight: 800; color: var(--accent);">
+                                        ${this.gameData.totalClicks}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">
+                                        Всего кликов
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderSkins() {
+                let skinsHTML = '';
+                
+                Object.values(this.skinsData).forEach(skin => {
+                    const isOwned = this.gameData.skins.includes(skin.id);
+                    const isEquipped = this.gameData.equippedSkin === skin.id;
+                    
+                    skinsHTML += `
+                        <div class="skin-card ${skin.rarity} ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}"
+                             data-skin="${skin.id}">
+                            <div class="skin-preview" style="background: linear-gradient(135deg, ${skin.color} 0%, ${this.darkenColor(skin.color, 20)} 100%)">
+                                <i class="${skin.icon}"></i>
+                            </div>
+                            <div class="skin-name">${skin.name}</div>
+                            <div class="skin-rarity">
+                                ${skin.rarity === 'common' ? 'Обычный' : 
+                                 skin.rarity === 'rare' ? 'Редкий' : 
+                                 skin.rarity === 'epic' ? 'Эпический' : 
+                                 skin.rarity === 'legendary' ? 'Легендарный' : 'Мифический'}
+                            </div>
+                            <div style="margin: 10px 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8)">
+                                ${skin.description}
+                            </div>
+                            <div style="margin-bottom: 15px; font-size: 0.9rem; color: ${isEquipped ? '#10B981' : 
+                                                                                     isOwned ? '#3B82F6' : 
+                                                                                     '#FBBF24'}">
+                                ${isEquipped ? 'Надет' : 
+                                  isOwned ? 'Надеть' : 
+                                  `${this.formatNumber(skin.price)} Silver`}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                return `
+                    <div class="skins-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-palette"></i> Скины
+                        </h2>
+                        <div class="skins-grid">
+                            ${skinsHTML}
+                        </div>
+                        <div style="margin-top: 20px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> Разблокировано скинов: ${this.gameData.skins.length}/${Object.keys(this.skinsData).length}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            handleSkinClick(skinId) {
+                const skin = this.skinsData[skinId];
+                if (!skin) return;
+                
+                if (this.gameData.skins.includes(skinId)) {
+                    this.gameData.equippedSkin = skinId;
+                    this.showNotification(`Надет скин "${skin.name}" (x${skin.multiplier})`, 'success');
+                    this.updateMonsterAppearance();
+                } else if (this.gameData.silver >= skin.price) {
+                    this.gameData.silver -= skin.price;
+                    this.gameData.skins.push(skinId);
+                    this.gameData.equippedSkin = skinId;
+                    this.gameData.stats.skinsUnlocked++;
+                    this.showNotification(`Куплен скин "${skin.name}"! (x${skin.multiplier})`, 'success');
+                    this.updateMonsterAppearance();
+                    this.checkAchievements();
+                } else {
+                    this.showNotification(`Нужно ${this.formatNumber(skin.price)} Silver!`, 'warning');
+                }
+                
+                this.updateUI();
+                this.saveGame();
+                
+                if (this.currentTab === 'skins') {
+                    this.loadTabContent('skins');
+                }
+            }
+            
+            renderLootboxes() {
+                let lootboxesHTML = '';
+                
+                Object.values(this.lootboxesData).forEach(lootbox => {
+                    const canAfford = lootbox.price.silver ? 
+                        this.gameData.silver >= lootbox.price.silver : 
+                        this.gameData.gold >= lootbox.price.gold;
+                    
+                    lootboxesHTML += `
+                        <div class="lootbox-card ${lootbox.id}">
+                            <div class="lootbox-icon">
+                                <i class="${lootbox.icon}"></i>
+                            </div>
+                            <div class="lootbox-name">${lootbox.name}</div>
+                            <div class="lootbox-price">
+                                ${lootbox.price.silver ? 
+                                    `${this.formatNumber(lootbox.price.silver)} Silver` : 
+                                    `${this.formatNumber(lootbox.price.gold)} Gold`}
+                            </div>
+                            <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 15px; line-height: 1.5;">
+                                ${lootbox.description}
+                            </div>
+                            <button class="action-button buy-lootbox-btn" 
+                                    data-lootbox="${lootbox.id}"
+                                    ${!canAfford ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-cart"></i> Купить
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                return `
+                    <div class="skins-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-gift"></i> Лутбоксы
+                        </h2>
+                        <div class="lootboxes-grid">
+                            ${lootboxesHTML}
+                        </div>
+                        <div style="margin-top: 20px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> Открыто лутбоксов: ${this.gameData.stats.lootboxesOpened}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            buyLootbox(type) {
+                const lootbox = this.lootboxesData[type];
+                if (!lootbox) return;
+                
+                // Проверяем возможность покупки
+                if (lootbox.price.silver && this.gameData.silver < lootbox.price.silver) {
+                    this.showNotification('Недостаточно Silver!', 'warning');
+                    return;
+                }
+                
+                if (lootbox.price.gold && this.gameData.gold < lootbox.price.gold) {
+                    this.showNotification('Недостаточно Gold!', 'warning');
+                    return;
+                }
+                
+                // Списание валюты
+                if (lootbox.price.silver) {
+                    this.gameData.silver -= lootbox.price.silver;
+                } else {
+                    this.gameData.gold -= lootbox.price.gold;
+                }
+                
+                // Добавляем лутбокс в инвентарь
+                this.gameData.inventory[type]++;
+                
+                this.showNotification(`Куплен ${lootbox.name}! Проверьте инвентарь.`, 'success');
+                this.updateUI();
+                this.saveGame();
+            }
+            
+            renderInventory() {
+                let inventoryHTML = '';
+                let totalLootboxes = 0;
+                
+                // Показываем лутбоксы
+                Object.keys(this.gameData.inventory).forEach(lootboxType => {
+                    const count = this.gameData.inventory[lootboxType];
+                    if (count > 0) {
+                        const lootbox = this.lootboxesData[lootboxType];
+                        if (lootbox) {
+                            inventoryHTML += `
+                                <div class="inventory-item">
+                                    <div class="inventory-count">${count}</div>
+                                    <div style="font-size: 2rem; margin-bottom: 10px; color: ${lootbox.color}">
+                                        <i class="${lootbox.icon}"></i>
+                                    </div>
+                                    <div style="font-size: 0.9rem; color: white;">${lootbox.name}</div>
+                                    <button class="open-lootbox-btn" data-lootbox="${lootboxType}"
+                                            style="margin-top: 10px; padding: 8px 12px; background: ${lootbox.color}; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                        Открыть
+                                    </button>
+                                </div>
+                            `;
+                            totalLootboxes += count;
+                        }
+                    }
+                });
+                
+                if (inventoryHTML === '') {
+                    inventoryHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: rgba(255, 255, 255, 0.5);">
+                            <i class="fas fa-box-open" style="font-size: 4rem; margin-bottom: 20px;"></i>
+                            <div style="font-size: 1.2rem;">Инвентарь пуст</div>
+                            <div style="margin-top: 10px;">Купите лутбоксы в магазине!</div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="inventory-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-box"></i> Инвентарь
+                        </h2>
+                        <div class="inventory-grid">
+                            ${inventoryHTML}
+                        </div>
+                        <div style="margin-top: 20px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> Всего лутбоксов: ${totalLootboxes}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            openLootbox(type) {
+                const lootbox = this.lootboxesData[type];
+                if (!lootbox || this.gameData.inventory[type] <= 0) {
+                    this.showNotification('У вас нет этого лутбокса!', 'error');
+                    return;
+                }
+                
+                // Используем один лутбокс
+                this.gameData.inventory[type]--;
+                this.gameData.stats.lootboxesOpened++;
+                
+                // Выбираем награду
+                const totalChance = lootbox.rewards.reduce((sum, reward) => sum + reward.chance, 0);
+                let random = Math.random() * totalChance;
+                let selectedReward = null;
+                
+                for (const reward of lootbox.rewards) {
+                    if (random < reward.chance) {
+                        selectedReward = reward;
+                        break;
+                    }
+                    random -= reward.chance;
+                }
+                
+                // Выдаем награду
+                let rewardText = '';
+                
+                switch(selectedReward.type) {
+                    case 'boost':
+                        this.activateBoost(selectedReward);
+                        rewardText = `Буст x${selectedReward.power} на ${selectedReward.duration} секунд`;
+                        break;
+                        
+                    case 'skin':
+                        this.getRandomSkin(selectedReward.rarity);
+                        rewardText = `Скин ${selectedReward.rarity} редкости`;
+                        break;
+                        
+                    case 'gold':
+                        this.gameData.gold += selectedReward.amount;
+                        rewardText = `${selectedReward.amount} Gold`;
+                        break;
+                        
+                    case 'emerald_lootbox':
+                        this.gameData.inventory.emerald++;
+                        rewardText = 'Изумрудный лутбокс';
+                        break;
+                        
+                    case 'crystal_lootbox':
+                        this.gameData.inventory.crystal++;
+                        rewardText = 'Кристальный лутбокс';
+                        break;
+                        
+                    case 'permanent_boost':
+                        this.gameData.clickPower *= selectedReward.power;
+                        rewardText = `Перманентный буст x${selectedReward.power}`;
+                        break;
+                }
+                
+                this.showNotification(`Вы получили: ${rewardText}`, 'success');
+                this.updateUI();
+                this.saveGame();
+                
+                // Обновляем инвентарь если он открыт
+                if (this.currentTab === 'inventory') {
+                    this.loadTabContent('inventory');
+                }
+            }
+            
+            getRandomSkin(rarityArray) {
+                // Находим все скины указанной редкости
+                const availableSkins = Object.values(this.skinsData).filter(skin => 
+                    rarityArray.includes(skin.rarity) && !this.gameData.skins.includes(skin.id)
+                );
+                
+                if (availableSkins.length > 0) {
+                    const randomSkin = availableSkins[Math.floor(Math.random() * availableSkins.length)];
+                    this.gameData.skins.push(randomSkin.id);
+                    this.gameData.stats.skinsUnlocked++;
+                    this.showNotification(`Получен новый скин: ${randomSkin.name}!`, 'success');
+                } else {
+                    // Все скины этой редкости уже есть, даем Silver вместо дубликата
+                    const silverReward = 10000 * rarityArray.length;
+                    this.gameData.silver += silverReward;
+                    this.showNotification(`Получено ${silverReward} Silver (вместо дубликата скина)`, 'info');
+                }
+            }
+            
+            activateBoost(boostData) {
+                const boost = {
+                    type: 'click_power',
+                    multiplier: boostData.power,
+                    expires: Date.now() + (boostData.duration * 1000),
+                    name: `Буст x${boostData.power}`,
+                    icon: 'bolt'
+                };
+                
+                this.gameData.activeBoosts.push(boost);
+                
+                setTimeout(() => {
+                    this.gameData.activeBoosts = this.gameData.activeBoosts.filter(b => b !== boost);
+                }, boostData.duration * 1000);
+            }
+            
+            levelUp() {
+                this.gameData.level++;
+                this.gameData.experience = 0;
+                this.gameData.maxExperience = Math.floor(1000 * Math.pow(1.5, this.gameData.level - 1));
+                this.gameData.clickPower += 0.2;
+                
+                const levelReward = this.gameData.level * 100;
+                this.gameData.silver += levelReward;
+                
+                this.showNotification(`Уровень ${this.gameData.level}!<br>+${levelReward} Silver<br>+0.2 к силе клика`, 'success');
+                this.updateUI();
+                this.checkAchievements();
+                this.saveGame();
+            }
+            
+            checkAchievements() {
+                Object.values(this.achievementsData).forEach(achievement => {
+                    if (!this.gameData.achievements.includes(achievement.id)) {
+                        if (achievement.condition(this.gameData)) {
+                            this.unlockAchievement(achievement);
+                        }
+                    }
+                });
+            }
+            
+            unlockAchievement(achievement) {
+                this.gameData.achievements.push(achievement.id);
+                
+                if (achievement.reward.silver) {
+                    this.gameData.silver += achievement.reward.silver;
+                }
+                if (achievement.reward.gold) {
+                    this.gameData.gold += achievement.reward.gold;
+                }
+                
+                this.showNotification(
+                    `Достижение: ${achievement.name}!<br>` +
+                    (achievement.reward.silver ? `+${achievement.reward.silver} Silver ` : '') +
+                    (achievement.reward.gold ? `+${achievement.reward.gold} Gold` : ''),
+                    'success'
+                );
+            }
+            
+            updateMonsterAppearance() {
+                const monster = document.querySelector('.monster');
+                if (!monster) return;
+                
+                const skin = this.skinsData[this.gameData.equippedSkin];
+                
+                monster.style.background = `linear-gradient(135deg, ${skin.color} 0%, ${this.darkenColor(skin.color, 20)} 100%)`;
+                
+                const icon = monster.querySelector('i');
+                if (icon) {
+                    icon.className = skin.icon;
+                }
+            }
+            
+            darkenColor(color, percent) {
+                const num = parseInt(color.replace('#', ''), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = (num >> 16) - amt;
+                const G = (num >> 8 & 0x00FF) - amt;
+                const B = (num & 0x0000FF) - amt;
+                return `#${(0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                    (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                    (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1)}`;
+            }
+            
+            updateUI() {
+                document.getElementById('silverAmount').textContent = this.formatNumber(this.gameData.silver);
+                document.getElementById('goldAmount').textContent = this.formatNumber(this.gameData.gold);
+                document.getElementById('footerSilver').textContent = this.formatNumber(this.gameData.silver);
+                document.getElementById('footerGold').textContent = this.formatNumber(this.gameData.gold);
+                document.getElementById('currentLevel').textContent = this.gameData.level;
+                
+                const energyPercent = (this.gameData.energy / this.gameData.maxEnergy) * 100;
+                document.getElementById('energyFill').style.width = energyPercent + '%';
+                document.getElementById('energyValue').textContent = `${Math.floor(this.gameData.energy)}/${this.gameData.maxEnergy}`;
+            }
+            
+            showNotification(message, type = 'info') {
+                const container = document.getElementById('notificationContainer');
+                if (!container) return;
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div class="notification-title">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                            type === 'warning' ? 'exclamation-triangle' : 
+                                            type === 'error' ? 'times-circle' : 
+                                            'info-circle'}"></i>
+                        ${type === 'success' ? 'Успех!' : 
+                         type === 'warning' ? 'Внимание!' : 
+                         type === 'error' ? 'Ошибка!' : 
+                         'Информация'}
+                    </div>
+                    <div class="notification-message">${message}</div>
+                `;
+                
+                container.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 10);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 400);
+                }, 3000);
+            }
+            
+            startGameLoop() {
+                setInterval(() => {
+                    // Восстановление энергии
+                    if (this.gameData.energy < this.gameData.maxEnergy) {
+                        this.gameData.energy = Math.min(
+                            this.gameData.maxEnergy, 
+                            this.gameData.energy + this.gameData.energyRegen
+                        );
+                        this.updateUI();
+                    }
+                    
+                    // Удаляем прошедшие бусты
+                    const now = Date.now();
+                    this.gameData.activeBoosts = this.gameData.activeBoosts.filter(boost => boost.expires > now);
+                    
+                }, 100);
+            }
+            
+            loadGame() {
+                try {
+                    const saved = localStorage.getItem('taptop_save');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        if (data.version === '1.0') {
+                            this.gameData = { ...this.gameData, ...data.gameData };
+                            this.updateUI();
+                            this.updateMonsterAppearance();
+                        }
+                    }
+                } catch (e) {
+                    console.log('Нет сохраненной игры');
+                }
+            }
+            
+            saveGame(showNotification = true) {
+                try {
+                    const saveData = {
+                        version: '1.0',
+                        timestamp: Date.now(),
+                        gameData: this.gameData
+                    };
+                    
+                    localStorage.setItem('taptop_save', JSON.stringify(saveData));
+                    
+                    if (showNotification) {
+                        this.showNotification('Игра сохранена!', 'success');
+                    }
+                } catch (e) {
+                    this.showNotification('Ошибка сохранения игры', 'error');
+                }
+            }
+            
+            formatNumber(num) {
+                if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
+                if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+                if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+                return Math.floor(num).toLocaleString();
+            }
+        }
+        
+        // Инициализация игры
+        document.addEventListener('DOMContentLoaded', function() {
+            window.game = new TapTopEngine();
+            console.log('Tap & Top готов!');
+        });
+    </script>
+</body>
+</html>
